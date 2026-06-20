@@ -1,5 +1,5 @@
 import { SectionLabel } from '../ui/SectionLabel'
-import { contacts } from '../../data/content'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 function ContactIcon({ type }: { type: 'phone' | 'email' | 'location' }) {
   const paths = {
@@ -37,6 +37,8 @@ function ContactIcon({ type }: { type: 'phone' | 'email' | 'location' }) {
 }
 
 export function Contact() {
+  const { t } = useLanguage()
+
   return (
     <section id="contact" className="bg-green-pale py-[118px]">
       <div className="mx-auto max-w-[1240px] px-8">
@@ -63,27 +65,24 @@ export function Contact() {
 
           <div className="relative grid lg:grid-cols-[0.92fr_1.08fr]">
             <div className="flex flex-col justify-center border-b border-white/10 p-12 text-off-white lg:border-r lg:border-b-0 lg:px-14 lg:py-16">
-              <SectionLabel number="05" label="Get in Touch" light />
+              <SectionLabel number="05" label={t.contact.sectionLabel} light />
               <h2 className="font-tamil-serif text-[clamp(30px,3.6vw,44px)] leading-[1.18] font-bold">
-                தொடர்பு கொள்ள
+                {t.contact.title}
               </h2>
               <p className="mt-[22px] max-w-[38ch] text-[16.5px] leading-[1.85] text-[#DCEAE0]">
-                கோரிக்கைகள், உறுப்பினர் சேர்க்கை, நிகழ்வுத் தகவல்கள் — எதற்கும் சங்க
-                அலுவலகத்தைத் தொடர்பு கொள்ளுங்கள். உங்கள் குரல் எங்கள் வலிமை.
+                {t.contact.description}
               </p>
               <div className="mt-[30px] inline-flex items-center gap-[11px] self-start rounded-full border border-gold/45 px-5 py-[11px]">
                 <span className="h-[7px] w-[7px] rounded-full bg-green-bright shadow-[0_0_0_3px_rgba(35,196,131,0.25)]" />
-                <span className="text-[13.5px] tracking-[0.5px] text-gold-pale">
-                  திங்கள் – சனி · காலை 10 – மாலை 6
-                </span>
+                <span className="text-[13.5px] tracking-[0.5px] text-gold-pale">{t.contact.hours}</span>
               </div>
             </div>
 
             <div className="flex flex-col justify-center px-12 py-10 lg:px-14 lg:py-12">
-              {contacts.map((c, i) => (
+              {t.contact.items.map((c, i) => (
                 <div
                   key={c.label}
-                  className={`flex items-center gap-[22px] py-6 ${i < contacts.length - 1 ? 'border-b border-white/10' : ''}`}
+                  className={`flex items-center gap-[22px] py-6 ${i < t.contact.items.length - 1 ? 'border-b border-white/10' : ''}`}
                 >
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] bg-white/[0.06] shadow-[inset_0_0_0_1px_rgba(230,177,48,0.35)]">
                     <ContactIcon type={c.icon} />

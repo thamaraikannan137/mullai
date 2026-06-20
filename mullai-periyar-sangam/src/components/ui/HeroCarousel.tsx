@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { HeroSlide } from '../../data/heroSlides'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 const IMAGE_INTERVAL_MS = 6000
 
@@ -8,6 +9,7 @@ interface HeroCarouselProps {
 }
 
 export function HeroCarousel({ slides }: HeroCarouselProps) {
+  const { t } = useLanguage()
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
@@ -98,7 +100,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
-      aria-label="முகப்பு படங்கள் மற்றும் வீடியோக்கள்"
+      aria-label={t.hero.carouselLabel}
     >
       {slides.map((slide, i) => {
         const isActive = i === active
@@ -142,7 +144,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             type="button"
             onClick={prev}
             className="absolute top-1/2 left-4 z-[3] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[rgba(4,46,33,0.45)] text-off-white backdrop-blur-sm transition hover:border-gold/50 hover:bg-[rgba(4,46,33,0.65)]"
-            aria-label="முந்தைய படம்"
+            aria-label={t.hero.prevSlide}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M15 18l-6-6 6-6" />
@@ -153,7 +155,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             type="button"
             onClick={next}
             className="absolute top-1/2 right-4 z-[3] flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-[rgba(4,46,33,0.45)] text-off-white backdrop-blur-sm transition hover:border-gold/50 hover:bg-[rgba(4,46,33,0.65)] xl:right-[calc(max(32px,(100%-1240px)/2+32px)+124px)]"
-            aria-label="அடுத்த படம்"
+            aria-label={t.hero.nextSlide}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 18l6-6-6-6" />

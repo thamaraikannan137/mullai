@@ -1,8 +1,10 @@
 import { ImageSlot } from '../ui/ImageSlot'
 import { SectionLabel } from '../ui/SectionLabel'
-import { news } from '../../data/content'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 export function News() {
+  const { t } = useLanguage()
+
   return (
     <section
       id="news"
@@ -11,30 +13,26 @@ export function News() {
       <div className="mx-auto max-w-[1240px] px-8">
         <div className="mb-14 flex flex-wrap items-end justify-between gap-5">
           <div>
-            <SectionLabel number="04" label="News & Announcements" light />
-            <h2 className="font-tamil-serif text-[clamp(30px,3.8vw,46px)] font-bold">
-              செய்திகள் & அறிவிப்புகள்
-            </h2>
+            <SectionLabel number="04" label={t.news.sectionLabel} light />
+            <h2 className="font-tamil-serif text-[clamp(30px,3.8vw,46px)] font-bold">{t.news.title}</h2>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {news.map((n) => (
+          {t.news.items.map((n) => (
             <article
-              key={n.ta}
+              key={n.title}
               className="flex flex-col overflow-hidden rounded-[18px] border border-gold/24 bg-white/[0.035] transition hover:-translate-y-1.5 hover:border-gold/55"
             >
               <div className="relative">
-                <ImageSlot src={n.img} alt={n.ta} className="h-[180px] w-full" />
+                <ImageSlot src={n.img} alt={n.title} className="h-[180px] w-full" />
                 <span className="absolute top-4 left-4 rounded-md bg-gold px-3 py-1 font-accent text-[12.5px] tracking-wide text-green-dark uppercase">
                   {n.tag}
                 </span>
               </div>
               <div className="flex flex-col p-7">
                 <p className="text-[13px] tracking-wide text-[#A9C2B2]">{n.date}</p>
-                <h3 className="mt-2.5 font-tamil-serif text-xl leading-snug font-semibold">
-                  {n.ta}
-                </h3>
+                <h3 className="mt-2.5 font-tamil-serif text-xl leading-snug font-semibold">{n.title}</h3>
                 <p className="mt-3 text-[15px] leading-[1.7] text-[#C9DFCF]">{n.body}</p>
               </div>
             </article>

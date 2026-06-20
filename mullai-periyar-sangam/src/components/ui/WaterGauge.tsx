@@ -1,20 +1,23 @@
+import { useLanguage } from '../../i18n/LanguageContext'
 import { gaugeTicks } from '../../data/content'
 
 export function WaterGauge() {
+  const { t } = useLanguage()
+
   return (
     <div
       className="pointer-events-none absolute top-1/2 z-[2] hidden h-[62vh] max-h-[560px] w-[108px] -translate-y-1/2 flex-col justify-end xl:flex"
       style={{ right: 'max(32px, calc((100% - 1240px) / 2 + 32px))' }}
     >
       <div className="relative flex flex-1 border-l-2 border-gold-pale/50">
-        {gaugeTicks.map((t) => (
+        {gaugeTicks.map((tick) => (
           <div
-            key={t.label}
+            key={tick.label}
             className="absolute left-0 flex -translate-y-1/2 items-center gap-2"
-            style={{ bottom: t.pos }}
+            style={{ bottom: tick.pos }}
           >
-            <span className="h-px bg-gold-pale/55" style={{ width: t.len }} />
-            <span className="font-accent text-[11px] text-gold-pale/70">{t.label}</span>
+            <span className="h-px bg-gold-pale/55" style={{ width: tick.len }} />
+            <span className="font-accent text-[11px] text-gold-pale/70">{tick.label}</span>
           </div>
         ))}
         <div
@@ -24,7 +27,7 @@ export function WaterGauge() {
         <div className="absolute right-[-14px] bottom-[85%] left-[-2px] flex -translate-y-1/2 items-center gap-2">
           <span className="h-0.5 w-[34px] bg-gold" />
           <span className="rounded-[5px] bg-gold px-2.5 py-0.5 font-accent text-sm font-bold whitespace-nowrap text-footer">
-            152 அடி
+            {t.hero.waterLevel}
           </span>
         </div>
       </div>

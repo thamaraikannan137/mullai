@@ -8,6 +8,7 @@ import { Demands } from './components/sections/Demands'
 import { News } from './components/sections/News'
 import { Join } from './components/sections/Join'
 import { Contact } from './components/sections/Contact'
+import { ScrollToTop } from './components/ui/ScrollToTop'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Contact />
       </main>
       <Footer />
+      <ScrollToTop />
     </div>
   )
 }
