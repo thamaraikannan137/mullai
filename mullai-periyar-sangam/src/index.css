@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Anek Tamil', sans-serif;
+  color: #15241d;
+  background: #f6f2e8;
+  -webkit-font-smoothing: antialiased;
+}
+
+section[id] {
+  scroll-margin-top: 88px;
+}
+
+::selection {
+  background: #e6b130;
+  color: #064e3b;
+}
+
+input::placeholder {
+  color: #9aa89f;
+}
+
+@keyframes mp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-mp-rise {
+  animation: mp-rise 0.7s ease-out both;
+}
