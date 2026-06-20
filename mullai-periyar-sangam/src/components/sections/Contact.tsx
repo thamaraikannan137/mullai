@@ -40,9 +40,9 @@ export function Contact() {
   const { t } = useLanguage()
 
   return (
-    <section id="contact" className="bg-green-pale py-[118px]">
-      <div className="mx-auto max-w-[1240px] px-8">
-        <div className="relative overflow-hidden rounded-[26px] bg-[radial-gradient(130%_150%_at_88%_0%,#0A8A5C_0%,#066F47_40%,#053D2C_100%)] shadow-[0_40px_90px_rgba(5,70,50,0.22)]">
+    <section id="contact" className="overflow-x-hidden bg-green-pale py-16 md:py-24 lg:py-[118px]">
+      <div className="mx-auto w-full max-w-[1240px] px-4 sm:px-6 lg:px-8">
+        <div className="relative w-full max-w-full overflow-hidden rounded-[20px] sm:rounded-[26px] bg-[radial-gradient(130%_150%_at_88%_0%,#0A8A5C_0%,#066F47_40%,#053D2C_100%)] shadow-[0_40px_90px_rgba(5,70,50,0.22)]">
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.05]"
             style={{
@@ -54,7 +54,7 @@ export function Contact() {
             viewBox="0 0 100 100"
             width="380"
             height="380"
-            className="pointer-events-none absolute -right-[90px] -bottom-[120px] opacity-[0.07]"
+            className="pointer-events-none absolute -right-[90px] -bottom-[120px] hidden opacity-[0.07] sm:block"
             aria-hidden
           >
             <path
@@ -63,35 +63,37 @@ export function Contact() {
             />
           </svg>
 
-          <div className="relative grid lg:grid-cols-[0.92fr_1.08fr]">
-            <div className="flex flex-col justify-center border-b border-white/10 p-12 text-off-white lg:border-r lg:border-b-0 lg:px-14 lg:py-16">
+          <div className="relative grid min-w-0 lg:grid-cols-[0.92fr_1.08fr]">
+            <div className="flex min-w-0 flex-col justify-center overflow-hidden border-b border-white/10 p-6 text-off-white sm:p-8 lg:border-r lg:border-b-0 lg:px-14 lg:py-16">
               <SectionLabel number="05" label={t.contact.sectionLabel} light />
-              <h2 className="font-tamil-serif text-[clamp(30px,3.6vw,44px)] leading-[1.18] font-bold">
+              <h2 className="break-words font-tamil-serif text-[clamp(26px,6vw,44px)] leading-[1.18] font-bold">
                 {t.contact.title}
               </h2>
-              <p className="mt-[22px] max-w-[38ch] text-[16.5px] leading-[1.85] text-[#DCEAE0]">
+              <p className="mt-4 max-w-full text-[15px] leading-[1.85] break-words text-[#DCEAE0] sm:mt-[22px] sm:max-w-[38ch] sm:text-[16.5px]">
                 {t.contact.description}
               </p>
-              <div className="mt-[30px] inline-flex items-center gap-[11px] self-start rounded-full border border-gold/45 px-5 py-[11px]">
-                <span className="h-[7px] w-[7px] rounded-full bg-green-bright shadow-[0_0_0_3px_rgba(35,196,131,0.25)]" />
-                <span className="text-[13.5px] tracking-[0.5px] text-gold-pale">{t.contact.hours}</span>
+              <div className="mt-5 flex w-full max-w-full items-start gap-[11px] rounded-2xl border border-gold/45 px-4 py-3 sm:mt-[30px] sm:w-auto sm:items-center sm:self-start sm:rounded-full sm:px-5 sm:py-[11px]">
+                <span className="mt-1.5 h-[7px] w-[7px] shrink-0 rounded-full bg-green-bright shadow-[0_0_0_3px_rgba(35,196,131,0.25)] sm:mt-0" />
+                <span className="min-w-0 flex-1 break-words text-[13px] leading-[1.5] tracking-[0.5px] text-gold-pale sm:flex-none sm:text-[13.5px]">
+                  {t.contact.hours}
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-col justify-center px-12 py-10 lg:px-14 lg:py-12">
+            <div className="flex min-w-0 flex-col justify-center overflow-hidden px-6 py-6 sm:px-8 sm:py-8 lg:px-14 lg:py-12">
               {t.contact.items.map((c, i) => (
                 <div
                   key={c.label}
-                  className={`flex items-center gap-[22px] py-6 ${i < t.contact.items.length - 1 ? 'border-b border-white/10' : ''}`}
+                  className={`flex min-w-0 items-start gap-4 py-5 sm:items-center sm:gap-[22px] sm:py-6 ${i < t.contact.items.length - 1 ? 'border-b border-white/10' : ''}`}
                 >
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] bg-white/[0.06] shadow-[inset_0_0_0_1px_rgba(230,177,48,0.35)]">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-white/[0.06] shadow-[inset_0_0_0_1px_rgba(230,177,48,0.35)] sm:h-14 sm:w-14 sm:rounded-[14px]">
                     <ContactIcon type={c.icon} />
                   </div>
-                  <div>
-                    <p className="font-accent text-[12.5px] tracking-[2px] text-[#9CC4AE] uppercase">
+                  <div className="min-w-0 flex-1 overflow-hidden">
+                    <p className="font-accent text-[11.5px] tracking-[1.8px] text-[#9CC4AE] uppercase sm:text-[12.5px] sm:tracking-[2px]">
                       {c.label}
                     </p>
-                    <p className="mt-1.5 font-tamil-serif text-[19px] leading-snug font-semibold break-words text-off-white">
+                    <p className="mt-1 break-words font-tamil-serif text-[17px] leading-[1.45] font-semibold text-off-white [overflow-wrap:anywhere] sm:mt-1.5 sm:text-[19px] sm:leading-snug">
                       {c.value}
                     </p>
                   </div>

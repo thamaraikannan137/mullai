@@ -27,11 +27,11 @@ export function SiteName({
   }
 
   return (
-    <span className={`flex flex-col leading-[1.15] ${className}`}>
+    <span className={`flex min-w-0 flex-col leading-[1.15] ${className}`}>
       {t.siteNameLines.map((line, i) => (
         <span
           key={line}
-          className={`font-tamil-serif font-bold ${i === 0 ? 'text-base' : 'text-sm'} ${lineClassName}`}
+          className={`break-words font-tamil-serif font-bold ${i === 0 ? 'text-base' : 'text-sm'} ${lineClassName}`}
         >
           {line}
         </span>
