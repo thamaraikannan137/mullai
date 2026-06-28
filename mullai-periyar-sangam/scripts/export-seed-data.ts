@@ -3,7 +3,10 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const outPath = path.join(__dirname, '..', 'seed-data.json')
+const outPaths = [
+  path.join(__dirname, '..', 'seed-data.json'),
+  path.join(__dirname, '..', 'src', 'lib', 'server', 'seed-data.json'),
+]
 
 async function main() {
   const { translations } = await import('../src/i18n/translations')
@@ -20,8 +23,12 @@ async function main() {
     },
   }
 
-  fs.writeFileSync(outPath, JSON.stringify(payload))
-  console.log(`Wrote ${outPath}`)
+  const json = JSON.stringify(payload)
+  for (const outPath of outPaths) {
+    fs.mkdirSync(path.dirname(outPath), { recursive: true })
+    fs.writeFileSync(outPath, json)
+    console.log(`Wrote ${outPath}`)
+  }
 }
 
 main().catch((err) => {

@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 import type { JwtPayload, User } from '../types'
 import { queryOne } from '../db'
+import { jsonError, jsonOk } from '../http'
+
+export { jsonOk, jsonError }
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
 
@@ -51,15 +54,6 @@ export async function getAuthUser(request: NextRequest): Promise<User | null> {
     return null
   }
 }
-
-export function jsonOk(data: unknown, status = 200) {
-  return NextResponse.json(data, { status })
-}
-
-export function jsonError(error: string, status: number, details?: unknown) {
-  return NextResponse.json(details ? { error, details } : { error }, { status })
-}
-
 export async function requireAuthUser(request: NextRequest) {
   const user = await getAuthUser(request)
   if (!user) return jsonError('Authentication required', 401)

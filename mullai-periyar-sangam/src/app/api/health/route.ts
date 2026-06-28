@@ -1,4 +1,4 @@
-import { jsonOk } from '@/lib/server/middleware/auth'
+import { jsonOk } from '@/lib/server/http'
 
 export async function GET() {
   return jsonOk({ ok: true })

@@ -4,25 +4,26 @@ import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { execute, migrate, queryOne } from './db'
+import bundledSeedData from './seed-data.json'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-function loadSeedData() {
+type SeedData = {
+  translations: { ta: { news: { items: Array<Record<string, string>> } }; en: { news: { items: Array<Record<string, string>> } } }
+  heroSlides: unknown[]
+  siteImages: Record<string, string>
+}
+
+function loadSeedData(): SeedData {
   const candidates = [
-    path.join(process.cwd(), 'seed-data.json'),
     path.join(__dirname, 'seed-data.json'),
-    path.join(__dirname, '..', 'seed-data.json'),
-    path.join(__dirname, '..', '..', 'seed-data.json'),
+    path.join(process.cwd(), 'seed-data.json'),
   ]
   const seedPath = candidates.find((p) => fs.existsSync(p))
-  if (!seedPath) {
-    throw new Error('seed-data.json not found. Run: npx tsx scripts/export-seed-data.ts')
+  if (seedPath) {
+    return JSON.parse(fs.readFileSync(seedPath, 'utf8')) as SeedData
   }
-  return JSON.parse(fs.readFileSync(seedPath, 'utf8')) as {
-    translations: { ta: { news: { items: Array<Record<string, string>> } }; en: { news: { items: Array<Record<string, string>> } } }
-    heroSlides: unknown[]
-    siteImages: Record<string, string>
-  }
+  return bundledSeedData as SeedData
 }
 
 export async function seedDatabase(options?: { force?: boolean }) {
