@@ -1,0 +1,3 @@
+.amplify-hosting/
+.DS_Store
+node_modules/

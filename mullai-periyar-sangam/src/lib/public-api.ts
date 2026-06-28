@@ -1,7 +1,6 @@
 import type { HeroSlide } from '../data/heroSlides'
 import type { Translations } from '../i18n/translations'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+import { API_URL } from './api-base'
 
 export interface SiteImages {
   about: string

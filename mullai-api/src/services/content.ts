@@ -188,8 +188,14 @@ export function buildPublicContent(): PublicContentResponse {
   const water = getWaterSettings()
   const siteMeta = getSiteMeta()
 
-  const taMerged = { ...ta, news: { ...(ta.news as object), items: newsToItems(news, 'ta') } }
-  const enMerged = { ...en, news: { ...(en.news as object), items: newsToItems(news, 'en') } }
+  const taMerged = { ...ta, news: { ...(ta.news as object), items: newsToItems(news, 'ta') } } as Record<
+    string,
+    unknown
+  >
+  const enMerged = { ...en, news: { ...(en.news as object), items: newsToItems(news, 'en') } } as Record<
+    string,
+    unknown
+  >
 
   // Sync hero water level label from water settings
   if (taMerged.hero && typeof taMerged.hero === 'object') {

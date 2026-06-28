@@ -1,16 +1,35 @@
 import Database from 'better-sqlite3'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const dataDir = path.join(__dirname, '..', 'data')
-const dbPath = path.join(dataDir, 'mullai.db')
+const bundledDataDir = fs.existsSync(path.join(__dirname, 'data'))
+  ? path.join(__dirname, 'data')
+  : path.join(__dirname, '..', 'data')
 
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true })
+function resolveDbPath() {
+  if (process.env.DB_PATH) return process.env.DB_PATH
+
+  const isCompute = Boolean(process.env.AWS_EXECUTION_ENV)
+  const dataDir = isCompute ? path.join(os.tmpdir(), 'mullai-data') : bundledDataDir
+
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true })
+  }
+
+  const dbPath = path.join(dataDir, 'mullai.db')
+  const bundledDb = path.join(bundledDataDir, 'mullai.db')
+
+  if (!fs.existsSync(dbPath) && fs.existsSync(bundledDb)) {
+    fs.copyFileSync(bundledDb, dbPath)
+  }
+
+  return dbPath
 }
 
+const dbPath = resolveDbPath()
 export const db = new Database(dbPath)
 
 db.pragma('journal_mode = WAL')

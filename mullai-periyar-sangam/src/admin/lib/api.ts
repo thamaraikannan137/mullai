@@ -1,9 +1,8 @@
 import type { DemandsSection, LeadersSection } from '../types/content'
 import type { HeroSlide } from '../../data/heroSlides'
+import { API_URL } from '../../lib/api-base'
 
 export type { LeadersSection, DemandsSection } from '../types/content'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 const TOKEN_KEY = 'mp-admin-token'
 
 export interface WaterSettings {
