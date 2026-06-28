@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { migrate } from './db.js'
+import { seedDatabase } from './seed-database.js'
 import { authRouter } from './routes/auth.js'
 import { publicRouter } from './routes/public.js'
 import { adminRouter } from './routes/admin.js'
@@ -51,6 +52,10 @@ if (fs.existsSync(staticDir)) {
 
 async function main() {
   await migrate()
+  const seeded = await seedDatabase()
+  if (seeded) {
+    console.log('Database seeded on startup.')
+  }
 
   app.listen(port, () => {
     if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me') {

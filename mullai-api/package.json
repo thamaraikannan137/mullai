@@ -8,7 +8,8 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "seed": "tsx src/seed.ts",
-    "db:reset": "FORCE_SEED=1 tsx src/seed.ts"
+    "db:reset": "FORCE_SEED=1 tsx src/seed.ts",
+    "export-seed": "tsx scripts/export-seed-data.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

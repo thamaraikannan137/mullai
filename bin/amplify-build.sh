@@ -14,9 +14,8 @@ echo "==> Installing API dependencies"
 cd "$API"
 npm install
 
-echo "==> Migrating and seeding Neon database"
-cd "$API"
-npx tsx src/seed.ts
+echo "==> Generating seed data JSON"
+npx tsx scripts/export-seed-data.ts
 
 echo "==> Building API"
 npm run build
@@ -32,6 +31,7 @@ mkdir -p "$HOSTING/compute/default" "$HOSTING/static"
 cp -R "$FRONTEND/dist/." "$HOSTING/static/"
 cp "$ROOT/deploy-manifest.json" "$HOSTING/deploy-manifest.json"
 cp -R "$API/dist/." "$HOSTING/compute/default/"
+cp "$API/seed-data.json" "$HOSTING/compute/default/seed-data.json"
 cp -R "$API/node_modules" "$HOSTING/compute/default/node_modules"
 cp "$API/package.json" "$HOSTING/compute/default/package.json"
 (cd "$HOSTING/compute/default" && npm prune --omit=dev)
