@@ -47,3 +47,68 @@ input::placeholder {
 .animate-mp-rise {
   animation: mp-rise 0.7s ease-out both;
 }
+
+@keyframes mp-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mp-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mp-toast {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-mp-fade {
+  animation: mp-fade 0.18s ease;
+}
+
+.animate-mp-modal-in {
+  animation: mp-modal-in 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.animate-mp-toast {
+  animation: mp-toast 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.admin-shell ::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+.admin-shell ::-webkit-scrollbar-thumb {
+  background: #cdd9d0;
+  border-radius: 8px;
+  border: 3px solid #f4f6f3;
+}
+
+.admin-shell ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Cormorant Garamond for stat digits — explicit quotes so multi-word family resolves in admin */
+.admin-shell .font-number,
+.admin-shell .font-accent {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-variant-numeric: lining-nums;
+}

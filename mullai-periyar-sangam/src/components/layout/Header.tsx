@@ -11,7 +11,7 @@ export function Header() {
   return (
     <header className="fixed top-0 right-0 left-0 z-[60] border-b border-green-dark/10 bg-off-white/85 backdrop-blur-[14px] backdrop-saturate-150">
       <div className="mx-auto flex h-20 max-w-[1240px] items-center justify-between gap-4 px-8">
-        <a href="#home" className="flex min-w-0 items-center gap-3.5 text-inherit no-underline">
+        <a href="/#home" className="flex min-w-0 items-center gap-3.5 text-inherit no-underline">
           <Logo />
           <SiteName lineClassName="text-green-dark" />
         </a>
@@ -21,7 +21,7 @@ export function Header() {
             {t.nav.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
+                href={`/${item.href}`}
                 className="rounded-lg px-3.5 py-2 text-[14.5px] font-medium whitespace-nowrap text-[#2C3A32] no-underline transition-colors hover:bg-green-pale hover:text-green-mid"
               >
                 {item.label}
@@ -29,7 +29,7 @@ export function Header() {
             ))}
           </nav>
           <a
-            href="#join"
+            href="/#join"
             className="ml-2 rounded-[9px] bg-green-mid px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-off-white no-underline shadow-[0_4px_14px_rgba(6,122,82,0.22)] transition hover:-translate-y-px hover:bg-green-dark"
           >
             {t.joinCta}
@@ -63,7 +63,7 @@ export function Header() {
             {t.nav.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
+                href={`/${item.href}`}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-[15px] font-medium text-[#2C3A32] no-underline hover:bg-green-pale"
               >
@@ -71,7 +71,7 @@ export function Header() {
               </a>
             ))}
             <a
-              href="#join"
+              href="/#join"
               onClick={() => setOpen(false)}
               className="mt-2 rounded-[9px] bg-green-mid px-5 py-3 text-center text-sm font-semibold text-off-white no-underline"
             >

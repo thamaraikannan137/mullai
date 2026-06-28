@@ -1,9 +1,10 @@
 import { Logo } from '../ui/Logo'
 import { SiteName } from '../ui/SiteName'
+import { SocialLinksRow } from '../ui/SocialLinks'
 import { useLanguage } from '../../i18n/LanguageContext'
 
 export function Footer() {
-  const { t } = useLanguage()
+  const { t, siteMeta } = useLanguage()
 
   return (
     <footer className="overflow-x-hidden bg-footer pb-8 text-[#C9DFCF]">
@@ -17,11 +18,12 @@ export function Footer() {
             </div>
             <p className="mt-5 break-words text-[14.5px] leading-[1.8] text-[#9FBBAB]">{t.footer.description}</p>
             <a
-              href="#join"
+              href="/#join"
               className="mt-6 inline-flex max-w-full items-center gap-2 rounded-[9px] bg-gold px-5 py-3 text-sm font-semibold text-footer no-underline transition hover:-translate-y-px"
             >
               {t.joinCta} →
             </a>
+            <SocialLinksRow links={siteMeta.social} title={t.footer.socialTitle} />
           </div>
 
           <div className="min-w-0">
@@ -32,7 +34,7 @@ export function Footer() {
               {t.nav.map((item) => (
                 <a
                   key={item.href}
-                  href={item.href}
+                  href={item.href.startsWith('#') ? `/${item.href}` : item.href}
                   className="break-words text-[14.5px] text-[#C9DFCF] no-underline transition hover:text-off-white"
                 >
                   {item.label}

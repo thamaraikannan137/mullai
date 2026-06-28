@@ -1,28 +1,67 @@
 import { useState, type FormEvent } from 'react'
 import { ImageSlot } from '../ui/ImageSlot'
-import { images } from '../../data/content'
+import { submitJoin } from '../../lib/public-api'
 import { useLanguage } from '../../i18n/LanguageContext'
 
 interface FormState {
   name: string
-  village: string
+  father_name: string
   phone: string
+  aadhaar: string
+  village: string
+  email: string
+}
+
+const emptyForm: FormState = {
+  name: '',
+  father_name: '',
+  phone: '',
+  aadhaar: '',
+  village: '',
+  email: '',
 }
 
 export function Join() {
-  const { t } = useLanguage()
-  const [form, setForm] = useState<FormState>({ name: '', village: '', phone: '' })
+  const { t, images } = useLanguage()
+  const [form, setForm] = useState<FormState>(emptyForm)
   const [joined, setJoined] = useState(false)
   const [joinedName, setJoinedName] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setJoined(true)
-    setJoinedName(form.name.trim() || t.join.defaultName)
+    setSubmitError('')
+    setSubmitting(true)
+    try {
+      await submitJoin({
+        name: form.name.trim(),
+        father_name: form.father_name.trim(),
+        phone: form.phone.trim(),
+        aadhaar: form.aadhaar.replace(/\s/g, ''),
+        village: form.village.trim(),
+        email: form.email.trim(),
+      })
+      setJoined(true)
+      setJoinedName(form.name.trim() || t.join.defaultName)
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : t.join.submitError)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const inputClass =
     'rounded-[10px] border border-[#D5E0D8] px-4 py-3.5 text-[15px] text-[#15241D] outline-none transition focus:border-green-mid focus:shadow-[0_0_0_3px_rgba(6,122,82,0.12)]'
+
+  const fields: { key: keyof FormState; label: string; placeholder: string; type?: string; inputMode?: 'numeric' | 'email' | 'tel' }[] = [
+    { key: 'name', label: t.join.nameLabel, placeholder: t.join.namePlaceholder },
+    { key: 'father_name', label: t.join.fatherNameLabel, placeholder: t.join.fatherNamePlaceholder },
+    { key: 'phone', label: t.join.phoneLabel, placeholder: t.join.phonePlaceholder, type: 'tel', inputMode: 'tel' },
+    { key: 'aadhaar', label: t.join.aadhaarLabel, placeholder: t.join.aadhaarPlaceholder, type: 'text', inputMode: 'numeric' },
+    { key: 'village', label: t.join.villageLabel, placeholder: t.join.villagePlaceholder },
+    { key: 'email', label: t.join.emailLabel, placeholder: t.join.emailPlaceholder, type: 'email', inputMode: 'email' },
+  ]
 
   return (
     <section id="join" className="mx-auto max-w-[1240px] px-8 py-[118px]">
@@ -59,44 +98,31 @@ export function Join() {
         <div className="bg-white px-[52px] py-[60px]">
           {!joined ? (
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              <label className="flex flex-col gap-2 text-[13px] font-semibold tracking-[0.3px] text-text-body">
-                {t.join.nameLabel}
-                <input
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder={t.join.namePlaceholder}
-                  className={inputClass}
-                />
-              </label>
-              <label className="flex flex-col gap-2 text-[13px] font-semibold tracking-[0.3px] text-text-body">
-                {t.join.villageLabel}
-                <input
-                  type="text"
-                  required
-                  value={form.village}
-                  onChange={(e) => setForm({ ...form, village: e.target.value })}
-                  placeholder={t.join.villagePlaceholder}
-                  className={inputClass}
-                />
-              </label>
-              <label className="flex flex-col gap-2 text-[13px] font-semibold tracking-[0.3px] text-text-body">
-                {t.join.phoneLabel}
-                <input
-                  type="tel"
-                  required
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder={t.join.phonePlaceholder}
-                  className={inputClass}
-                />
-              </label>
+              {fields.map(({ key, label, placeholder, type = 'text', inputMode }) => (
+                <label
+                  key={key}
+                  className="flex flex-col gap-2 text-[13px] font-semibold tracking-[0.3px] text-text-body"
+                >
+                  {label}
+                  <input
+                    type={type}
+                    inputMode={inputMode}
+                    required
+                    value={form[key]}
+                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                    placeholder={placeholder}
+                    className={inputClass}
+                    maxLength={key === 'aadhaar' ? 14 : undefined}
+                  />
+                </label>
+              ))}
+              {submitError && <p className="text-sm text-red-600">{submitError}</p>}
               <button
                 type="submit"
-                className="mt-2 rounded-[10px] bg-green-mid px-6 py-4 text-[15px] font-semibold text-off-white transition hover:-translate-y-px hover:bg-green-dark"
+                disabled={submitting}
+                className="mt-2 rounded-[10px] bg-green-mid px-6 py-4 text-[15px] font-semibold text-off-white transition hover:-translate-y-px hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {t.join.submitBtn}
+                {submitting ? '…' : t.join.submitBtn}
               </button>
             </form>
           ) : (

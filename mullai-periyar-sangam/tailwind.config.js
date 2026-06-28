@@ -6,7 +6,8 @@ export default {
       fontFamily: {
         'tamil-serif': ['"Noto Serif Tamil"', 'serif'],
         'tamil-sans': ['"Anek Tamil"', 'sans-serif'],
-        accent: ['"Cormorant Garamond"', 'serif'],
+        accent: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        number: ['"Cormorant Garamond"', 'Georgia', 'serif'],
       },
       colors: {
         cream: '#f6f2e8',

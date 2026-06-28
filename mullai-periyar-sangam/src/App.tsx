@@ -1,32 +1,33 @@
-import { Header } from './components/layout/Header'
-import { Footer } from './components/layout/Footer'
-import { Hero } from './components/sections/Hero'
-import { About } from './components/sections/About'
-import { QuoteBand } from './components/sections/QuoteBand'
-import { Leaders } from './components/sections/Leaders'
-import { Demands } from './components/sections/Demands'
-import { News } from './components/sections/News'
-import { Join } from './components/sections/Join'
-import { Contact } from './components/sections/Contact'
-import { ScrollToTop } from './components/ui/ScrollToTop'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { PublicSite } from './pages/PublicSite'
+import { NewsDetailPage } from './pages/NewsDetailPage'
+
+const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })))
 
 function App() {
   return (
-    <div className="overflow-x-hidden bg-cream font-tamil-sans text-[#15241D]">
-      <Header />
-      <main>
-        <Hero />
-        <About />
-        <QuoteBand />
-        <Leaders />
-        <Demands />
-        <News />
-        <Join />
-        <Contact />
-      </main>
-      <Footer />
-      <ScrollToTop />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<PublicSite />} />
+        <Route path="/news/:id" element={<NewsDetailPage />} />
+        <Route
+          path="/admin/*"
+          element={
+            <Suspense
+              fallback={
+                <div className="flex min-h-screen items-center justify-center bg-cream text-green-dark">
+                  Loading admin…
+                </div>
+              }
+            >
+              <AdminApp />
+            </Suspense>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

@@ -1,10 +1,9 @@
 import { HeroCarousel } from '../ui/HeroCarousel'
 import { WaterGauge } from '../ui/WaterGauge'
-import { heroSlides } from '../../data/heroSlides'
 import { useLanguage } from '../../i18n/LanguageContext'
 
 export function Hero() {
-  const { t } = useLanguage()
+  const { t, heroSlides } = useLanguage()
 
   return (
     <section

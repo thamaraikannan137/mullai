@@ -1,9 +1,74 @@
-import { ImageSlot } from '../ui/ImageSlot'
+import { Link } from 'react-router-dom'
+import { NewsMedia } from '../ui/NewsMedia'
 import { SectionLabel } from '../ui/SectionLabel'
 import { useLanguage } from '../../i18n/LanguageContext'
+import type { Lang } from '../../i18n/translations'
+
+function NewsCard({
+  id,
+  tag,
+  date,
+  title,
+  body,
+  img,
+  mediaType,
+  lang,
+}: {
+  id?: string
+  tag: string
+  date: string
+  title: string
+  body: string
+  img: string
+  mediaType?: 'image' | 'youtube'
+  lang: Lang
+}) {
+  const inner = (
+    <>
+      <div className="relative">
+        <NewsMedia
+          mediaType={mediaType ?? 'image'}
+          src={img}
+          title={title}
+          className="h-[180px] w-full"
+        />
+        <span className="absolute top-4 left-4 rounded-md bg-gold px-3 py-1 font-accent text-[12.5px] tracking-wide text-green-dark uppercase">
+          {tag}
+        </span>
+      </div>
+      <div className="flex flex-col p-7">
+        <p className="text-[13px] tracking-wide text-[#A9C2B2]">{date}</p>
+        <h3 className="mt-2.5 font-tamil-serif text-xl leading-snug font-semibold">{title}</h3>
+        <p className="mt-3 line-clamp-3 text-[15px] leading-[1.7] text-[#C9DFCF]">{body}</p>
+        {id && (
+          <p className="mt-4 text-[13px] font-semibold text-gold">
+            {lang === 'ta' ? 'மேலும் படிக்க →' : 'Read more →'}
+          </p>
+        )}
+      </div>
+    </>
+  )
+
+  if (!id) {
+    return (
+      <article className="flex flex-col overflow-hidden rounded-[18px] border border-gold/24 bg-white/[0.035]">
+        {inner}
+      </article>
+    )
+  }
+
+  return (
+    <Link
+      to={`/news/${id}`}
+      className="group flex flex-col overflow-hidden rounded-[18px] border border-gold/24 bg-white/[0.035] text-inherit no-underline transition hover:-translate-y-1.5 hover:border-gold/55"
+    >
+      {inner}
+    </Link>
+  )
+}
 
 export function News() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
 
   return (
     <section
@@ -19,23 +84,18 @@ export function News() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {t.news.items.map((n) => (
-            <article
-              key={n.title}
-              className="flex flex-col overflow-hidden rounded-[18px] border border-gold/24 bg-white/[0.035] transition hover:-translate-y-1.5 hover:border-gold/55"
-            >
-              <div className="relative">
-                <ImageSlot src={n.img} alt={n.title} className="h-[180px] w-full" />
-                <span className="absolute top-4 left-4 rounded-md bg-gold px-3 py-1 font-accent text-[12.5px] tracking-wide text-green-dark uppercase">
-                  {n.tag}
-                </span>
-              </div>
-              <div className="flex flex-col p-7">
-                <p className="text-[13px] tracking-wide text-[#A9C2B2]">{n.date}</p>
-                <h3 className="mt-2.5 font-tamil-serif text-xl leading-snug font-semibold">{n.title}</h3>
-                <p className="mt-3 text-[15px] leading-[1.7] text-[#C9DFCF]">{n.body}</p>
-              </div>
-            </article>
+          {t.news.items.map((n, index) => (
+            <NewsCard
+              key={n.id ?? `${n.title}-${index}`}
+              id={n.id}
+              tag={n.tag}
+              date={n.date}
+              title={n.title}
+              body={n.body}
+              img={n.img}
+              mediaType={n.mediaType}
+              lang={lang}
+            />
           ))}
         </div>
       </div>

@@ -1,5 +1,7 @@
 import { SectionLabel } from '../ui/SectionLabel'
+import { SocialLinksRow } from '../ui/SocialLinks'
 import { useLanguage } from '../../i18n/LanguageContext'
+import type { ContactItem } from '../../i18n/translations'
 
 function ContactIcon({ type }: { type: 'phone' | 'email' | 'location' }) {
   const paths = {
@@ -36,8 +38,18 @@ function ContactIcon({ type }: { type: 'phone' | 'email' | 'location' }) {
   )
 }
 
+function contactHref(icon: ContactItem['icon'], value: string): string | undefined {
+  if (icon === 'phone') {
+    const digits = value.replace(/\D/g, '')
+    if (!digits) return undefined
+    return digits.length === 10 ? `tel:+91${digits}` : `tel:+${digits}`
+  }
+  if (icon === 'email' && value.includes('@')) return `mailto:${value.trim()}`
+  return undefined
+}
+
 export function Contact() {
-  const { t } = useLanguage()
+  const { t, siteMeta } = useLanguage()
 
   return (
     <section id="contact" className="overflow-x-hidden bg-green-pale py-16 md:py-24 lg:py-[118px]">
@@ -78,6 +90,7 @@ export function Contact() {
                   {t.contact.hours}
                 </span>
               </div>
+              <SocialLinksRow links={siteMeta.social} variant="contact" title={t.footer.socialTitle} />
             </div>
 
             <div className="flex min-w-0 flex-col justify-center overflow-hidden px-6 py-6 sm:px-8 sm:py-8 lg:px-14 lg:py-12">
@@ -94,7 +107,17 @@ export function Contact() {
                       {c.label}
                     </p>
                     <p className="mt-1 break-words font-tamil-serif text-[17px] leading-[1.45] font-semibold text-off-white [overflow-wrap:anywhere] sm:mt-1.5 sm:text-[19px] sm:leading-snug">
-                      {c.value}
+                      {(() => {
+                        const href = contactHref(c.icon, c.value)
+                        if (href) {
+                          return (
+                            <a href={href} className="text-off-white no-underline transition hover:text-gold-pale">
+                              {c.value}
+                            </a>
+                          )
+                        }
+                        return c.value
+                      })()}
                     </p>
                   </div>
                 </div>

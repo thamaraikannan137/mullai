@@ -1,10 +1,11 @@
 import { ImageSlot } from '../ui/ImageSlot'
 import { SectionLabel } from '../ui/SectionLabel'
-import { president } from '../../data/content'
+import { president as defaultPresident } from '../../data/content'
 import { useLanguage } from '../../i18n/LanguageContext'
 
 export function Leaders() {
-  const { t } = useLanguage()
+  const { t, images } = useLanguage()
+  const presidentPhoto = images.presidentPhoto || defaultPresident.photo
 
   return (
     <section id="leaders" className="bg-cream py-[122px]">
@@ -16,7 +17,7 @@ export function Leaders() {
         <div className="grid items-stretch gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
           <div className="relative min-h-[440px] overflow-hidden rounded-[20px] border border-[#E4EDE7] bg-green-dark shadow-[0_30px_70px_rgba(5,70,50,0.22)]">
             <ImageSlot
-              src={president.photo}
+              src={presidentPhoto}
               alt={t.leaders.presidentName}
               className="absolute inset-0 h-full w-full object-center"
             />

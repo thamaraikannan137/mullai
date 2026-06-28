@@ -1,10 +1,9 @@
 import { ImageSlot } from '../ui/ImageSlot'
 import { SectionLabel } from '../ui/SectionLabel'
-import { images } from '../../data/content'
 import { useLanguage } from '../../i18n/LanguageContext'
 
 export function About() {
-  const { t } = useLanguage()
+  const { t, images, siteMeta } = useLanguage()
 
   return (
     <section id="about" className="mx-auto max-w-[1240px] px-8 pt-[120px] pb-6">
@@ -23,7 +22,7 @@ export function About() {
           <p className="mt-4 text-[17px] leading-[1.85] text-text-body">{t.about.p2}</p>
           <div className="mt-8 flex gap-9 border-t border-[#E1EAE3] pt-7">
             <div>
-              <div className="font-accent text-[34px] leading-none font-semibold text-green-mid">5</div>
+              <div className="font-accent text-[34px] leading-none font-semibold text-green-mid">{siteMeta.about.districtCount}</div>
               <div className="mt-2 text-[13.5px] text-text-muted">{t.about.stat1}</div>
             </div>
             <div>
@@ -44,7 +43,7 @@ export function About() {
             />
           </div>
           <div className="absolute -bottom-6 -left-6 rounded-[14px] border border-gold/35 bg-green-dark px-6 py-5 text-off-white shadow-[0_18px_40px_rgba(5,70,50,0.30)]">
-            <div className="font-accent text-[38px] leading-none font-semibold text-gold-pale">1895</div>
+            <div className="font-accent text-[38px] leading-none font-semibold text-gold-pale">{siteMeta.about.badgeYear}</div>
             <div className="mt-1.5 font-tamil-serif text-[13px] text-[#CFE2D4]">{t.about.badge}</div>
           </div>
         </div>

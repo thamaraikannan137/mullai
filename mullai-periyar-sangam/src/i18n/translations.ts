@@ -17,11 +17,13 @@ export interface DemandItem {
 }
 
 export interface NewsItem {
+  id?: string
   tag: string
   date: string
   title: string
   body: string
   img: string
+  mediaType?: 'image' | 'youtube'
 }
 
 export interface BearerItem {
@@ -106,14 +108,21 @@ export interface Translations {
     freeNote: string
     nameLabel: string
     namePlaceholder: string
-    villageLabel: string
-    villagePlaceholder: string
+    fatherNameLabel: string
+    fatherNamePlaceholder: string
     phoneLabel: string
     phonePlaceholder: string
+    aadhaarLabel: string
+    aadhaarPlaceholder: string
+    villageLabel: string
+    villagePlaceholder: string
+    emailLabel: string
+    emailPlaceholder: string
     submitBtn: string
     thanks: string
     thanksMsg: string
     defaultName: string
+    submitError: string
   }
 
   contact: {
@@ -128,6 +137,7 @@ export interface Translations {
     description: string
     pagesTitle: string
     districtsTitle: string
+    socialTitle: string
     districts: string[]
     copyright: string
     tagline: string
@@ -189,7 +199,7 @@ export const translations: Record<Lang, Translations> = {
 
     leaders: {
       sectionLabel: 'Leadership',
-      presidentName: 'மு. முருகன்',
+      presidentName: 'மீ.முருகன்.',
       presidentRoleShort: 'தலைவர்',
       quote:
         'பெரியாறு நீர் எங்கள் மூதாதையர் உழைப்பின் பலன். அந்த நீரை, அதன் முழு உரிமையை, அடுத்த தலைமுறைக்குக் கடத்துவதே எங்கள் சங்கத்தின் கடமை.',
@@ -273,15 +283,22 @@ export const translations: Record<Lang, Translations> = {
       freeNote: 'உறுப்பினர் கட்டணம் முற்றிலும் இலவசம்',
       nameLabel: 'பெயர்',
       namePlaceholder: 'உங்கள் முழுப் பெயர்',
+      fatherNameLabel: 'தந்தை பெயர்',
+      fatherNamePlaceholder: 'தந்தையின் முழுப் பெயர்',
+      phoneLabel: 'கைபேசி எண்',
+      phonePlaceholder: '+91 ',
+      aadhaarLabel: 'ஆதார் எண்',
+      aadhaarPlaceholder: '12 இலக்க ஆதார் எண்',
       villageLabel: 'ஊர்',
       villagePlaceholder: 'உங்கள் ஊர் / மாவட்டம்',
-      phoneLabel: 'கைபேசி',
-      phonePlaceholder: '+91 ',
+      emailLabel: 'மின்னஞ்சல்',
+      emailPlaceholder: 'example@email.com',
       submitBtn: 'பதிவு செய்யுங்கள் →',
       thanks: 'நன்றி',
       thanksMsg:
         'உங்கள் பதிவு பெறப்பட்டது. சங்கத்தின் தொண்டர்கள் விரைவில் உங்களைத் தொடர்பு கொள்வார்கள்.',
       defaultName: 'நண்பரே',
+      submitError: 'பதிவு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.',
     },
 
     contact: {
@@ -306,6 +323,7 @@ export const translations: Record<Lang, Translations> = {
         'பெரியாறு பாசனப் பகுதி விவசாயிகளின் உரிமைகளுக்கான ஒற்றைக் குரல். நீர், மண், வாழ்வாதாரம் — நம் உரிமை.',
       pagesTitle: 'பக்கங்கள்',
       districtsTitle: 'பாசன மாவட்டங்கள்',
+      socialTitle: 'எங்களைப் பின்தொடருங்கள்',
       districts: ['தேனி', 'மதுரை', 'சிவகங்கை', 'ராமநாதபுரம்', 'திண்டுக்கல்'],
       copyright:
         '© 2026 முல்லைப் பெரியாறு ஒருபோக பாசன விவசாயிகள் சங்கம். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.',
@@ -367,7 +385,7 @@ export const translations: Record<Lang, Translations> = {
 
     leaders: {
       sectionLabel: 'Leadership',
-      presidentName: 'M. Murugan',
+      presidentName: 'm.murugan',
       presidentRoleShort: 'President',
       quote:
         'Periyar water is the fruit of our ancestors\' labour. Passing that water, with its full rights, to the next generation is our association\'s duty.',
@@ -446,15 +464,22 @@ export const translations: Record<Lang, Translations> = {
       freeNote: 'Membership is completely free',
       nameLabel: 'Name',
       namePlaceholder: 'Your full name',
+      fatherNameLabel: "Father's name",
+      fatherNamePlaceholder: "Father's full name",
+      phoneLabel: 'Phone number',
+      phonePlaceholder: '+91 ',
+      aadhaarLabel: 'Aadhaar number',
+      aadhaarPlaceholder: '12-digit Aadhaar number',
       villageLabel: 'Village',
       villagePlaceholder: 'Your village / district',
-      phoneLabel: 'Phone',
-      phonePlaceholder: '+91 ',
+      emailLabel: 'Email',
+      emailPlaceholder: 'example@email.com',
       submitBtn: 'Register →',
       thanks: 'Thank you',
       thanksMsg:
         'Your registration has been received. Association volunteers will contact you shortly.',
       defaultName: 'friend',
+      submitError: 'Registration failed. Please try again.',
     },
 
     contact: {
@@ -479,6 +504,7 @@ export const translations: Record<Lang, Translations> = {
         'The united voice for the rights of Periyar command-area farmers. Water, soil, livelihood — our right.',
       pagesTitle: 'Pages',
       districtsTitle: 'Irrigation Districts',
+      socialTitle: 'Follow us',
       districts: ['Theni', 'Madurai', 'Sivagangai', 'Ramanathapuram', 'Dindigul'],
       copyright:
         '© 2026 Mullai Periyar Single-Crop Irrigation Farmers\' Association. All rights reserved.',
