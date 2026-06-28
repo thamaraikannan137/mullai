@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { PublicLayout } from '../components/layout/PublicLayout'
 import { NewsMedia } from '../components/ui/NewsMedia'
 import { useLanguage } from '../i18n/LanguageContext'
@@ -59,7 +60,7 @@ export function NewsDetailPage() {
     <PublicLayout>
       <article className="mx-auto max-w-[860px] px-8 pt-28 pb-24">
         <Link
-          to="/#news"
+          href="/#news"
           className="inline-flex items-center gap-2 text-[14.5px] font-semibold text-green-mid no-underline transition hover:text-green-dark"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -83,7 +84,7 @@ export function NewsDetailPage() {
                 : 'This post may have been removed or is not published.'}
             </p>
             <Link
-              to="/#news"
+              href="/#news"
               className="mt-6 inline-block rounded-[10px] bg-green-mid px-6 py-3 text-sm font-semibold text-off-white no-underline hover:bg-green-dark"
             >
               {lang === 'ta' ? 'செய்திகளுக்கு திரும்பு' : 'Back to news'}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { TextField } from '@mui/material'
 import { AdminModal, ModalField } from '../components/AdminModal'
 import { useToast } from '../context/ToastContext'
@@ -26,8 +26,8 @@ export function DemandsPage() {
   const [editIndex, setEditIndex] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [params, setParams] = useSearchParams()
-  const navigate = useNavigate()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { showToast, showError } = useToast()
 
   const load = () =>
@@ -41,11 +41,11 @@ export function DemandsPage() {
   }, [])
 
   useEffect(() => {
-    if (params.get('add') === '1' && ta && en) {
+    if (searchParams.get('add') === '1' && ta && en) {
       openAdd()
-      setParams({})
+      router.replace('/admin/demands')
     }
-  }, [params, setParams, ta, en])
+  }, [searchParams, ta, en])
 
   const openAdd = () => {
     const num = String((ta?.items.length ?? 0) + 1).padStart(2, '0')
@@ -71,7 +71,7 @@ export function DemandsPage() {
 
   const closeModal = () => {
     setModalOpen(false)
-    navigate('/admin/demands')
+    router.push('/admin/demands')
   }
 
   const save = async () => {

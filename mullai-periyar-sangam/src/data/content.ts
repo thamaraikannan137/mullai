@@ -19,7 +19,7 @@ export const gaugeTicks: GaugeTick[] = [
 ]
 
 export const president = {
-  photo: presidentPhoto,
+  photo: typeof presidentPhoto === 'string' ? presidentPhoto : presidentPhoto.src,
 }
 
 export const images = {

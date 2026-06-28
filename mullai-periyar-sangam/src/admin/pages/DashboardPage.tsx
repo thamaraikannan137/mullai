@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { Box, Typography, Button } from '@mui/material'
 import PeopleIcon from '@mui/icons-material/People'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
@@ -155,7 +155,7 @@ export function DashboardPage() {
             </Typography>
             <Button
               component={Link}
-              to="/admin/members"
+              href="/admin/members"
               sx={{
                 fontSize: 13.5,
                 fontWeight: 600,
@@ -233,7 +233,7 @@ export function DashboardPage() {
             </Box>
             <Button
               component={Link}
-              to="/admin/water"
+              href="/admin/water"
               fullWidth
               sx={{
                 mt: '18px',

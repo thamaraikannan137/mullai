@@ -1,5 +1,6 @@
-import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState, type ReactNode } from 'react'
 import {
   Box,
   Drawer,
@@ -25,6 +26,7 @@ import { mp } from '../../ui/designTokens'
 import { AdminLanguageSwitcher } from '../components/AdminLanguageSwitcher'
 import { useAuth } from '../context/AuthContext'
 import { adminLabel, useAdminLanguage, type AdminLang } from '../context/AdminLanguageContext'
+import { AdminSearchProvider } from '../context/AdminSearchContext'
 import { ToastProvider } from '../context/ToastContext'
 import { getPageMeta } from './pageMeta'
 import { api } from '../lib/api'
@@ -42,12 +44,12 @@ const navItems = [
   { to: '/admin/settings', ta: 'தொடர்பு & அமைப்பு', en: 'Contact & Settings', icon: 'settings' },
 ]
 
-export function AdminLayout() {
+export function AdminLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth()
   const { lang } = useAdminLanguage()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const meta = getPageMeta(location.pathname)
+  const router = useRouter()
+  const pathname = usePathname()
+  const meta = getPageMeta(pathname)
   const [pendingCount, setPendingCount] = useState(0)
   const [search, setSearch] = useState('')
 
@@ -61,11 +63,11 @@ export function AdminLayout() {
 
   useEffect(() => {
     api.listSubmissions('new').then((rows) => setPendingCount(rows.length)).catch(() => {})
-  }, [location.pathname])
+  }, [pathname])
 
   const handleLogout = () => {
     logout()
-    navigate('/admin/login')
+    router.push('/admin/login')
   }
 
   const initial = user?.name?.trim().charAt(0) || user?.email?.charAt(0).toUpperCase() || 'ந'
@@ -91,15 +93,12 @@ export function AdminLayout() {
         </Typography>
         <List disablePadding>
           {navItems.map((item) => {
-            const active = item.end
-              ? location.pathname === item.to
-              : location.pathname.startsWith(item.to)
+            const active = item.end ? pathname === item.to : pathname.startsWith(item.to)
             return (
               <ListItemButton
                 key={item.to}
-                component={NavLink}
-                to={item.to}
-                end={item.end}
+                component={Link}
+                href={item.to}
                 sx={{
                   borderRadius: 2.5,
                   mb: 0.4,
@@ -235,7 +234,7 @@ export function AdminLayout() {
                   <Button
                     variant="contained"
                     startIcon={<AddIcon sx={{ fontSize: 18 }} />}
-                    onClick={() => navigate(meta.addTo!)}
+                    onClick={() => router.push(meta.addTo!)}
                     sx={{
                       height: mp.headerBtnHeight,
                       px: '20px',
@@ -255,7 +254,9 @@ export function AdminLayout() {
           </AppBar>
 
           <Box sx={{ flex: 1, px: 4, pt: 3.75, pb: 7 }}>
-            <Outlet context={{ search, lang }} />
+            <AdminSearchProvider search={search} lang={lang}>
+              {children}
+            </AdminSearchProvider>
           </Box>
         </Box>
       </Box>
@@ -263,6 +264,4 @@ export function AdminLayout() {
   )
 }
 
-export function useAdminSearch() {
-  return useOutletContext<{ search: string; lang: AdminLang }>()
-}
+export { useAdminSearch } from '../context/AdminSearchContext'

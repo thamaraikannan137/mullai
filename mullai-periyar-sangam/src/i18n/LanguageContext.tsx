@@ -24,8 +24,10 @@ const DEFAULT_WATER: WaterSettings = {
 
 const DEFAULT_META: SiteMeta = {
   seo: {
-    titleTa: document.title,
-    titleEn: document.title,
+    titleTa:
+      'முல்லைப் பெரியாறு ஒருபோக பாசன விவசாயிகள் சங்கம் | Mullai Periyar Single-Crop Irrigation Farmers\' Association',
+    titleEn:
+      'Mullai Periyar Single-Crop Irrigation Farmers\' Association | Mullai Periyar Sangam',
     descriptionTa: '',
     descriptionEn: '',
   },
@@ -55,6 +57,7 @@ const defaultImages: SiteImages = {
 const LanguageContext = createContext<LanguageContextValue | null>(null)
 
 function getInitialLang(): Lang {
+  if (typeof window === 'undefined') return 'ta'
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored === 'ta' || stored === 'en') return stored
   return 'ta'

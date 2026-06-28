@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { TextField } from '@mui/material'
 import { AdminModal, ModalField } from '../components/AdminModal'
 import { useToast } from '../context/ToastContext'
@@ -63,8 +63,8 @@ export function LeadersPage() {
   const [editKind, setEditKind] = useState<LeaderKind>('bearer')
   const [editIndex, setEditIndex] = useState(-1)
   const [form, setForm] = useState(emptyForm)
-  const [params, setParams] = useSearchParams()
-  const navigate = useNavigate()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { showToast, showError } = useToast()
 
   const load = () =>
@@ -78,11 +78,11 @@ export function LeadersPage() {
   }, [])
 
   useEffect(() => {
-    if (params.get('add') === '1' && ta && en) {
+    if (searchParams.get('add') === '1' && ta && en) {
       openAdd()
-      setParams({})
+      router.replace('/admin/leaders')
     }
-  }, [params, setParams, ta, en])
+  }, [searchParams, ta, en])
 
   const cards = useMemo(() => (ta && en ? buildCards(ta, en) : []), [ta, en])
 
@@ -132,7 +132,7 @@ export function LeadersPage() {
 
   const closeModal = () => {
     setModalOpen(false)
-    navigate('/admin/leaders')
+    router.push('/admin/leaders')
   }
 
   const save = async () => {

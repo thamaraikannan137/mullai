@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material'
 import { AdminModal, ModalField } from '../components/AdminModal'
 import { useToast } from '../context/ToastContext'
@@ -80,8 +80,8 @@ export function NewsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
-  const [params, setParams] = useSearchParams()
-  const navigate = useNavigate()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { showToast } = useToast()
 
   const load = () => api.listNews().then(setRows)
@@ -91,11 +91,11 @@ export function NewsPage() {
   }, [])
 
   useEffect(() => {
-    if (params.get('new') === '1') {
+    if (searchParams.get('new') === '1') {
       openAdd()
-      setParams({})
+      router.replace('/admin/news')
     }
-  }, [params, setParams])
+  }, [searchParams])
 
   const openAdd = () => {
     setEditId(null)
@@ -114,7 +114,7 @@ export function NewsPage() {
 
   const closeModal = () => {
     setModalOpen(false)
-    navigate('/admin/news')
+    router.push('/admin/news')
   }
 
   const save = async () => {

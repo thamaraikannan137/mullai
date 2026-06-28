@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { usePathname } from 'next/navigation'
 
 const HEADER_OFFSET = 88
 
 export function useHashScroll(ready: boolean) {
-  const { hash, pathname } = useLocation()
+  const pathname = usePathname()
+  const hash = typeof window !== 'undefined' ? window.location.hash : ''
 
   useEffect(() => {
     if (!ready || pathname !== '/' || !hash) return

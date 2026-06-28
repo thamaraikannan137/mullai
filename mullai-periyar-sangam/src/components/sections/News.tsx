@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { NewsMedia } from '../ui/NewsMedia'
 import { SectionLabel } from '../ui/SectionLabel'
 import { useLanguage } from '../../i18n/LanguageContext'
@@ -59,7 +59,7 @@ function NewsCard({
 
   return (
     <Link
-      to={`/news/${id}`}
+      href={`/news/${id}`}
       className="group flex flex-col overflow-hidden rounded-[18px] border border-gold/24 bg-white/[0.035] text-inherit no-underline transition hover:-translate-y-1.5 hover:border-gold/55"
     >
       {inner}

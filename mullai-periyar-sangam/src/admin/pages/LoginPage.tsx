@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useState, type FormEvent, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Box, Typography, TextField, Button } from '@mui/material'
 import { AdminLogo } from '../components/AdminLogo'
 import { AdminLanguageSwitcher } from '../components/AdminLanguageSwitcher'
@@ -10,13 +10,17 @@ import { MpFormField, mp } from '../../ui'
 export function LoginPage() {
   const { user, login } = useAuth()
   const { lang } = useAdminLanguage()
-  const navigate = useNavigate()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  if (user) return <Navigate to="/admin" replace />
+  useEffect(() => {
+    if (user) router.replace('/admin')
+  }, [user, router])
+
+  if (user) return null
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -24,7 +28,7 @@ export function LoginPage() {
     setLoading(true)
     try {
       await login(email, password)
-      navigate('/admin')
+      router.push('/admin')
     } catch (err) {
       setError(err instanceof Error ? err.message : adminLabel('உள்நுழைவு தோல்வி', 'Login failed', lang))
     } finally {

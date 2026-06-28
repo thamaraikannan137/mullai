@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Box, TextField, MenuItem, Typography, Button } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import EditIcon from '@mui/icons-material/Edit'
@@ -106,8 +106,8 @@ export function MembersPage() {
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(PAGE_SIZE_DEFAULT)
-  const [params, setParams] = useSearchParams()
-  const navigate = useNavigate()
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
   const headerColumns: MpGridColumn[] = [
     { id: 'name', label: c.name, width: '1.6fr', sortable: true },
@@ -130,11 +130,11 @@ export function MembersPage() {
   useEffect(load, [])
 
   useEffect(() => {
-    if (params.get('add') === '1') {
+    if (searchParams.get('add') === '1') {
       openAdd()
-      setParams({})
+      router.replace('/admin/members')
     }
-  }, [params, setParams])
+  }, [searchParams])
 
   const pendingCount = rows.filter((r) => r.status === 'new').length
   const approvedCount = rows.length - pendingCount
@@ -209,7 +209,7 @@ export function MembersPage() {
     setModalOpen(false)
     setEditId(null)
     setEditSource(null)
-    navigate('/admin/members')
+    router.push('/admin/members')
   }
 
   const save = async () => {

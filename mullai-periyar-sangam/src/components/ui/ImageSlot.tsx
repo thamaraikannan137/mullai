@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import type { StaticImageData } from 'next/image'
 
 interface ImageSlotProps {
-  src: string
+  src: string | StaticImageData
   alt: string
   className?: string
   placeholder?: string
@@ -9,6 +10,7 @@ interface ImageSlotProps {
 
 export function ImageSlot({ src, alt, className = '', placeholder }: ImageSlotProps) {
   const [error, setError] = useState(false)
+  const resolvedSrc = typeof src === 'string' ? src : src.src
 
   if (error) {
     return (
@@ -22,7 +24,7 @@ export function ImageSlot({ src, alt, className = '', placeholder }: ImageSlotPr
 
   return (
     <img
-      src={src}
+      src={resolvedSrc}
       alt={alt}
       className={`object-cover ${className}`}
       onError={() => setError(true)}

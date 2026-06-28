@@ -1,13 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       fontFamily: {
-        'tamil-serif': ['"Noto Serif Tamil"', 'serif'],
-        'tamil-sans': ['"Anek Tamil"', 'sans-serif'],
-        accent: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        number: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        'tamil-serif': ['var(--font-tamil-serif)', '"Noto Serif Tamil"', 'serif'],
+        'tamil-sans': ['var(--font-tamil-sans)', '"Anek Tamil"', 'sans-serif'],
+        accent: ['var(--font-accent)', '"Cormorant Garamond"', 'Georgia', 'serif'],
+        number: ['var(--font-accent)', '"Cormorant Garamond"', 'Georgia', 'serif'],
       },
       colors: {
         cream: '#f6f2e8',
