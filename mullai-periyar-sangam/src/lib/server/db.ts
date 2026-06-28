@@ -1,18 +1,19 @@
-import pg from 'pg'
+import { Pool } from '@neondatabase/serverless'
 
-const { Pool } = pg
+let pool: Pool | null = null
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is required (Neon PostgreSQL connection string)')
+function getPool(): Pool {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is required (Neon PostgreSQL connection string)')
+  }
+  if (!pool) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  }
+  return pool
 }
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-})
-
 export async function query<T>(text: string, params: unknown[] = []): Promise<T[]> {
-  const result = await pool.query(text, params)
+  const result = await getPool().query(text, params)
   return result.rows as T[]
 }
 
@@ -22,12 +23,12 @@ export async function queryOne<T>(text: string, params: unknown[] = []): Promise
 }
 
 export async function execute(text: string, params: unknown[] = []): Promise<number> {
-  const result = await pool.query(text, params)
+  const result = await getPool().query(text, params)
   return result.rowCount ?? 0
 }
 
 export async function migrate() {
-  await pool.query(`
+  await getPool().query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -82,7 +83,7 @@ export async function migrate() {
     );
   `)
 
-  await pool.query(`UPDATE join_submissions SET source = 'manual' WHERE source = 'admin'`)
+  await getPool().query(`UPDATE join_submissions SET source = 'manual' WHERE source = 'admin'`)
 
   const defaultWater = JSON.stringify({
     currentLevel: 142,
@@ -107,7 +108,7 @@ export async function migrate() {
     social: { facebook: '', instagram: '', youtube: '' },
   })
 
-  await pool.query(
+  await getPool().query(
     `UPDATE site_content
      SET water_settings = COALESCE(water_settings, $1),
          site_meta = COALESCE(site_meta, $2)

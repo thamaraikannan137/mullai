@@ -1,4 +1,6 @@
-import { handlePublicNews } from '@/lib/server/handlers/public'
+import { handlePublicNews } from '@/lib/server/handlers/content'
+
+export const runtime = 'nodejs'
 
 type Ctx = { params: Promise<{ id: string }> }
 

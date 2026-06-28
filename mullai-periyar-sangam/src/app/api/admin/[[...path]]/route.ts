@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server'
 import { requireAuthUser } from '@/lib/server/middleware/auth'
 import { handleAdminRequest } from '@/lib/server/handlers/admin'
 
+export const runtime = 'nodejs'
+
 type Ctx = { params: Promise<{ path?: string[] }> }
 
 async function dispatch(request: NextRequest, ctx: Ctx) {
