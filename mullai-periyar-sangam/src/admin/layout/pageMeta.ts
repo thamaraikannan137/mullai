@@ -10,30 +10,24 @@ export interface PageMeta {
   addTo?: string
 }
 
+const membersMeta: PageMeta = {
+  ta: 'உறுப்பினர்கள்',
+  en: 'Member Registrations',
+  showSearch: true,
+  searchPlaceholderTa: 'பெயர் / தந்தை பெயர் / ஊர் / தொலைபேசி / ஆதார் / மின்னஞ்சல்...',
+  searchPlaceholderEn: 'Search name / father / village / phone / Aadhaar / email...',
+  showAdd: true,
+  addLabel: 'உறுப்பினர் சேர்',
+  addLabelEn: 'Add member',
+  addTo: '/admin/members?add=1',
+}
+
+const settingsMeta: PageMeta = { ta: 'தொடர்பு & அமைப்பு', en: 'Contact & Settings' }
+
 export const pageMeta: Record<string, PageMeta> = {
   '/admin': { ta: 'முகப்பு', en: 'Dashboard Overview' },
-  '/admin/members': {
-    ta: 'உறுப்பினர்கள்',
-    en: 'Member Registrations',
-    showSearch: true,
-    searchPlaceholderTa: 'பெயர் / தந்தை பெயர் / ஊர் / தொலைபேசி / ஆதார் / மின்னஞ்சல்...',
-    searchPlaceholderEn: 'Search name / father / village / phone / Aadhaar / email...',
-    showAdd: true,
-    addLabel: 'உறுப்பினர் சேர்',
-    addLabelEn: 'Add member',
-    addTo: '/admin/members?add=1',
-  },
-  '/admin/submissions': {
-    ta: 'உறுப்பினர்கள்',
-    en: 'Member Registrations',
-    showSearch: true,
-    searchPlaceholderTa: 'பெயர் / தந்தை பெயர் / ஊர் / தொலைபேசி / ஆதார் / மின்னஞ்சல்...',
-    searchPlaceholderEn: 'Search name / father / village / phone / Aadhaar / email...',
-    showAdd: true,
-    addLabel: 'உறுப்பினர் சேர்',
-    addLabelEn: 'Add member',
-    addTo: '/admin/members?add=1',
-  },
+  '/admin/members': membersMeta,
+  '/admin/submissions': membersMeta,
   '/admin/news': {
     ta: 'செய்திகள் & அறிவிப்புகள்',
     en: 'News & Announcements',
@@ -60,8 +54,8 @@ export const pageMeta: Record<string, PageMeta> = {
   },
   '/admin/content': { ta: 'பக்க உள்ளடக்கம்', en: 'Page Content' },
   '/admin/water': { ta: 'நீர்மட்ட நிலை', en: 'Water Level Status' },
-  '/admin/settings': { ta: 'தொடர்பு & அமைப்பு', en: 'Contact & Settings' },
-  '/admin/contact': { ta: 'தொடர்பு & அமைப்பு', en: 'Contact & Settings' },
+  '/admin/settings': settingsMeta,
+  '/admin/contact': settingsMeta,
 }
 
 export function getPageMeta(pathname: string): PageMeta {

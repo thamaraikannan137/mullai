@@ -1,3 +1,7 @@
 .amplify-hosting/
 .DS_Store
 node_modules/
+.env
+.env.local
+.env*.local
+mullai-api/
