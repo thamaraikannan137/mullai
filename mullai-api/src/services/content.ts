@@ -8,20 +8,19 @@ import type {
   SiteMeta,
   WaterSettings,
 } from '../types.js'
-import { db } from '../db.js'
+import { execute, query, queryOne } from '../db.js'
 
-function getSiteRow() {
-  const row = db.prepare('SELECT * FROM site_content WHERE id = 1').get() as
-    | {
-        content_ta: string
-        content_en: string
-        hero_slides: string
-        images: string
-        water_settings: string | null
-        site_meta: string | null
-      }
-    | undefined
+type SiteRow = {
+  content_ta: string
+  content_en: string
+  hero_slides: string
+  images: string
+  water_settings: string | null
+  site_meta: string | null
+}
 
+async function getSiteRow(): Promise<SiteRow> {
+  const row = await queryOne<SiteRow>(`SELECT * FROM site_content WHERE id = 1`)
   if (!row) throw new Error('Site content not seeded. Run: npm run seed')
   return row
 }
@@ -50,20 +49,21 @@ const DEFAULT_META: SiteMeta = {
   social: { facebook: '', instagram: '', youtube: '' },
 }
 
-export function getWaterSettings(): WaterSettings {
-  const row = getSiteRow()
+export async function getWaterSettings(): Promise<WaterSettings> {
+  const row = await getSiteRow()
   if (!row.water_settings) return DEFAULT_WATER
   return { ...DEFAULT_WATER, ...JSON.parse(row.water_settings) }
 }
 
-export function updateWaterSettings(settings: WaterSettings) {
-  db.prepare(`UPDATE site_content SET water_settings = ?, updated_at = datetime('now') WHERE id = 1`).run(
-    JSON.stringify(settings),
+export async function updateWaterSettings(settings: WaterSettings) {
+  await execute(
+    `UPDATE site_content SET water_settings = $1, updated_at = NOW() WHERE id = 1`,
+    [JSON.stringify(settings)],
   )
 }
 
-export function getSiteMeta(): SiteMeta {
-  const row = getSiteRow()
+export async function getSiteMeta(): Promise<SiteMeta> {
+  const row = await getSiteRow()
   if (!row.site_meta) return DEFAULT_META
   const parsed = JSON.parse(row.site_meta) as SiteMeta
   return {
@@ -73,47 +73,47 @@ export function getSiteMeta(): SiteMeta {
   }
 }
 
-export function updateSiteMeta(meta: SiteMeta) {
-  db.prepare(`UPDATE site_content SET site_meta = ?, updated_at = datetime('now') WHERE id = 1`).run(
+export async function updateSiteMeta(meta: SiteMeta) {
+  await execute(`UPDATE site_content SET site_meta = $1, updated_at = NOW() WHERE id = 1`, [
     JSON.stringify(meta),
-  )
+  ])
 }
 
-export function getHeroSlides(): HeroSlide[] {
-  const row = getSiteRow()
+export async function getHeroSlides(): Promise<HeroSlide[]> {
+  const row = await getSiteRow()
   return JSON.parse(row.hero_slides) as HeroSlide[]
 }
 
-export function updateHeroSlides(slides: HeroSlide[]) {
-  db.prepare(`UPDATE site_content SET hero_slides = ?, updated_at = datetime('now') WHERE id = 1`).run(
+export async function updateHeroSlides(slides: HeroSlide[]) {
+  await execute(`UPDATE site_content SET hero_slides = $1, updated_at = NOW() WHERE id = 1`, [
     JSON.stringify(slides),
-  )
+  ])
 }
 
-export function getSiteImages(): SiteImages {
-  const row = getSiteRow()
+export async function getSiteImages(): Promise<SiteImages> {
+  const row = await getSiteRow()
   return JSON.parse(row.images) as SiteImages
 }
 
-export function updateSiteImages(images: SiteImages) {
-  db.prepare(`UPDATE site_content SET images = ?, updated_at = datetime('now') WHERE id = 1`).run(
+export async function updateSiteImages(images: SiteImages) {
+  await execute(`UPDATE site_content SET images = $1, updated_at = NOW() WHERE id = 1`, [
     JSON.stringify(images),
-  )
+  ])
 }
 
-export function getContentSection(key: string) {
-  const row = getSiteRow()
+export async function getContentSection(key: string) {
+  const row = await getSiteRow()
   const ta = JSON.parse(row.content_ta) as Record<string, unknown>
   const en = JSON.parse(row.content_en) as Record<string, unknown>
   return { ta: ta[key], en: en[key] }
 }
 
-export function updateContentSection(key: string, ta: unknown, en: unknown) {
-  updateSection(key, ta, en)
+export async function updateContentSection(key: string, ta: unknown, en: unknown) {
+  await updateSection(key, ta, en)
 }
 
-export function getOrgSettings() {
-  const row = getSiteRow()
+export async function getOrgSettings() {
+  const row = await getSiteRow()
   const ta = JSON.parse(row.content_ta) as {
     siteNameLines: string[]
     footer: { description: string; tagline: string; copyright: string }
@@ -138,11 +138,11 @@ export function getOrgSettings() {
   }
 }
 
-export function updateOrgSettings(
+export async function updateOrgSettings(
   ta: { siteNameLines: string[]; description: string; tagline: string; copyright: string },
   en: { siteNameLines: string[]; description: string; tagline: string; copyright: string },
 ) {
-  const row = getSiteRow()
+  const row = await getSiteRow()
   const contentTa = JSON.parse(row.content_ta) as Record<string, unknown>
   const contentEn = JSON.parse(row.content_en) as Record<string, unknown>
   contentTa.siteNameLines = ta.siteNameLines
@@ -153,17 +153,16 @@ export function updateOrgSettings(
   ;(contentEn.footer as Record<string, unknown>).description = en.description
   ;(contentEn.footer as Record<string, unknown>).tagline = en.tagline
   ;(contentEn.footer as Record<string, unknown>).copyright = en.copyright
-  db.prepare(
-    `UPDATE site_content SET content_ta = ?, content_en = ?, updated_at = datetime('now') WHERE id = 1`,
-  ).run(JSON.stringify(contentTa), JSON.stringify(contentEn))
+  await execute(
+    `UPDATE site_content SET content_ta = $1, content_en = $2, updated_at = NOW() WHERE id = 1`,
+    [JSON.stringify(contentTa), JSON.stringify(contentEn)],
+  )
 }
 
-function getPublishedNews() {
-  return db
-    .prepare(
-      `SELECT * FROM news_posts WHERE is_published = 1 ORDER BY sort_order ASC, published_at DESC`,
-    )
-    .all() as NewsPostRow[]
+async function getPublishedNews() {
+  return query<NewsPostRow>(
+    `SELECT * FROM news_posts WHERE is_published = 1 ORDER BY sort_order ASC, published_at DESC`,
+  )
 }
 
 function newsToItems(posts: NewsPostRow[], lang: 'ta' | 'en') {
@@ -178,15 +177,15 @@ function newsToItems(posts: NewsPostRow[], lang: 'ta' | 'en') {
   }))
 }
 
-export function buildPublicContent(): PublicContentResponse {
-  const row = getSiteRow()
+export async function buildPublicContent(): Promise<PublicContentResponse> {
+  const row = await getSiteRow()
   const ta = JSON.parse(row.content_ta) as Record<string, unknown>
   const en = JSON.parse(row.content_en) as Record<string, unknown>
   const heroSlides = JSON.parse(row.hero_slides) as HeroSlide[]
   const images = JSON.parse(row.images) as SiteImages
-  const news = getPublishedNews()
-  const water = getWaterSettings()
-  const siteMeta = getSiteMeta()
+  const news = await getPublishedNews()
+  const water = await getWaterSettings()
+  const siteMeta = await getSiteMeta()
 
   const taMerged = { ...ta, news: { ...(ta.news as object), items: newsToItems(news, 'ta') } } as Record<
     string,
@@ -197,7 +196,6 @@ export function buildPublicContent(): PublicContentResponse {
     unknown
   >
 
-  // Sync hero water level label from water settings
   if (taMerged.hero && typeof taMerged.hero === 'object') {
     const heroTa = taMerged.hero as Record<string, unknown>
     heroTa.waterLevel = `${water.targetLevel} அடி`
@@ -221,127 +219,146 @@ export function buildPublicContent(): PublicContentResponse {
   }
 }
 
-export function getContactContent(): { ta: ContactSection; en: ContactSection } {
-  const row = getSiteRow()
+export async function getContactContent(): Promise<{ ta: ContactSection; en: ContactSection }> {
+  const row = await getSiteRow()
   const ta = JSON.parse(row.content_ta) as { contact: ContactSection }
   const en = JSON.parse(row.content_en) as { contact: ContactSection }
   return { ta: ta.contact, en: en.contact }
 }
 
-export function updateContact(ta: ContactSection, en: ContactSection) {
-  const row = getSiteRow()
+export async function updateContact(ta: ContactSection, en: ContactSection) {
+  const row = await getSiteRow()
   const contentTa = JSON.parse(row.content_ta) as Record<string, unknown>
   const contentEn = JSON.parse(row.content_en) as Record<string, unknown>
   contentTa.contact = ta
   contentEn.contact = en
 
-  db.prepare(
-    `UPDATE site_content SET content_ta = ?, content_en = ?, updated_at = datetime('now') WHERE id = 1`,
-  ).run(JSON.stringify(contentTa), JSON.stringify(contentEn))
+  await execute(
+    `UPDATE site_content SET content_ta = $1, content_en = $2, updated_at = NOW() WHERE id = 1`,
+    [JSON.stringify(contentTa), JSON.stringify(contentEn)],
+  )
 }
 
-function updateSection(key: string, ta: unknown, en: unknown) {
-  const row = getSiteRow()
+async function updateSection(key: string, ta: unknown, en: unknown) {
+  const row = await getSiteRow()
   const contentTa = JSON.parse(row.content_ta) as Record<string, unknown>
   const contentEn = JSON.parse(row.content_en) as Record<string, unknown>
   contentTa[key] = ta
   contentEn[key] = en
-  db.prepare(
-    `UPDATE site_content SET content_ta = ?, content_en = ?, updated_at = datetime('now') WHERE id = 1`,
-  ).run(JSON.stringify(contentTa), JSON.stringify(contentEn))
+  await execute(
+    `UPDATE site_content SET content_ta = $1, content_en = $2, updated_at = NOW() WHERE id = 1`,
+    [JSON.stringify(contentTa), JSON.stringify(contentEn)],
+  )
 }
 
-export function getLeadersContent() {
-  const row = getSiteRow()
+export async function getLeadersContent() {
+  const row = await getSiteRow()
   const ta = JSON.parse(row.content_ta) as { leaders: Record<string, unknown> }
   const en = JSON.parse(row.content_en) as { leaders: Record<string, unknown> }
   return { ta: ta.leaders, en: en.leaders }
 }
 
-export function updateLeaders(ta: Record<string, unknown>, en: Record<string, unknown>) {
-  updateSection('leaders', ta, en)
+export async function updateLeaders(ta: Record<string, unknown>, en: Record<string, unknown>) {
+  await updateSection('leaders', ta, en)
 }
 
-export function getDemandsContent() {
-  const row = getSiteRow()
+export async function getDemandsContent() {
+  const row = await getSiteRow()
   const ta = JSON.parse(row.content_ta) as { demands: Record<string, unknown> }
   const en = JSON.parse(row.content_en) as { demands: Record<string, unknown> }
   return { ta: ta.demands, en: en.demands }
 }
 
-export function updateDemands(ta: Record<string, unknown>, en: Record<string, unknown>) {
-  updateSection('demands', ta, en)
+export async function updateDemands(ta: Record<string, unknown>, en: Record<string, unknown>) {
+  await updateSection('demands', ta, en)
 }
 
-export function getPublishedNewsById(id: string) {
-  return db
-    .prepare(`SELECT * FROM news_posts WHERE id = ? AND is_published = 1`)
-    .get(id) as NewsPostRow | undefined
+export async function getPublishedNewsById(id: string) {
+  return queryOne<NewsPostRow>(`SELECT * FROM news_posts WHERE id = $1 AND is_published = 1`, [id])
 }
 
-export function listAllNews() {
-  return db
-    .prepare(`SELECT * FROM news_posts ORDER BY sort_order ASC, published_at DESC`)
-    .all() as NewsPostRow[]
+export async function listAllNews() {
+  return query<NewsPostRow>(
+    `SELECT * FROM news_posts ORDER BY sort_order ASC, published_at DESC`,
+  )
 }
 
-export function getNewsById(id: string) {
-  return db.prepare(`SELECT * FROM news_posts WHERE id = ?`).get(id) as NewsPostRow | undefined
+export async function getNewsById(id: string) {
+  return queryOne<NewsPostRow>(`SELECT * FROM news_posts WHERE id = $1`, [id])
 }
 
-export function createNews(data: Omit<NewsPostRow, 'created_at' | 'updated_at'>) {
-  db.prepare(
+export async function createNews(data: Omit<NewsPostRow, 'created_at' | 'updated_at'>) {
+  await execute(
     `INSERT INTO news_posts (id, tag_ta, tag_en, published_at, title_ta, title_en, body_ta, body_en, image_url, media_type, is_published, sort_order)
-     VALUES (@id, @tag_ta, @tag_en, @published_at, @title_ta, @title_en, @body_ta, @body_en, @image_url, @media_type, @is_published, @sort_order)`,
-  ).run({
-    ...data,
-    media_type: data.media_type ?? 'image',
-  })
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+    [
+      data.id,
+      data.tag_ta,
+      data.tag_en,
+      data.published_at,
+      data.title_ta,
+      data.title_en,
+      data.body_ta,
+      data.body_en,
+      data.image_url,
+      data.media_type ?? 'image',
+      data.is_published,
+      data.sort_order,
+    ],
+  )
   return getNewsById(data.id)
 }
 
-export function updateNews(id: string, data: Partial<NewsPostRow>) {
-  const existing = getNewsById(id)
+export async function updateNews(id: string, data: Partial<NewsPostRow>) {
+  const existing = await getNewsById(id)
   if (!existing) return undefined
 
-  const merged = { ...existing, ...data, id, updated_at: new Date().toISOString() }
-  db.prepare(
+  const merged = { ...existing, ...data, id, media_type: data.media_type ?? existing.media_type ?? 'image' }
+  await execute(
     `UPDATE news_posts SET
-      tag_ta = @tag_ta, tag_en = @tag_en, published_at = @published_at,
-      title_ta = @title_ta, title_en = @title_en, body_ta = @body_ta, body_en = @body_en,
-      image_url = @image_url, media_type = @media_type, is_published = @is_published, sort_order = @sort_order,
-      updated_at = datetime('now')
-     WHERE id = @id`,
-  ).run({
-    ...merged,
-    media_type: merged.media_type ?? 'image',
-  })
+      tag_ta = $2, tag_en = $3, published_at = $4,
+      title_ta = $5, title_en = $6, body_ta = $7, body_en = $8,
+      image_url = $9, media_type = $10, is_published = $11, sort_order = $12,
+      updated_at = NOW()
+     WHERE id = $1`,
+    [
+      id,
+      merged.tag_ta,
+      merged.tag_en,
+      merged.published_at,
+      merged.title_ta,
+      merged.title_en,
+      merged.body_ta,
+      merged.body_en,
+      merged.image_url,
+      merged.media_type,
+      merged.is_published,
+      merged.sort_order,
+    ],
+  )
   return getNewsById(id)
 }
 
-export function deleteNews(id: string) {
-  const result = db.prepare(`DELETE FROM news_posts WHERE id = ?`).run(id)
-  return result.changes > 0
+export async function deleteNews(id: string) {
+  const count = await execute(`DELETE FROM news_posts WHERE id = $1`, [id])
+  return count > 0
 }
 
-export function listSubmissions(status?: string) {
+export async function listSubmissions(status?: string) {
   if (status) {
-    return db
-      .prepare(`SELECT * FROM join_submissions WHERE status = ? ORDER BY created_at DESC`)
-      .all(status) as JoinSubmissionRow[]
+    return query<JoinSubmissionRow>(
+      `SELECT * FROM join_submissions WHERE status = $1 ORDER BY created_at DESC`,
+      [status],
+    )
   }
-  return db
-    .prepare(`SELECT * FROM join_submissions ORDER BY created_at DESC`)
-    .all() as JoinSubmissionRow[]
+  return query<JoinSubmissionRow>(`SELECT * FROM join_submissions ORDER BY created_at DESC`)
 }
 
-export function getSubmissionById(id: string) {
-  return db.prepare(`SELECT * FROM join_submissions WHERE id = ?`).get(id) as
-    | JoinSubmissionRow
-    | undefined
+export async function getSubmissionById(id: string) {
+  return queryOne<JoinSubmissionRow>(`SELECT * FROM join_submissions WHERE id = $1`, [id])
 }
 
-export function createSubmission(data: {
+export async function createSubmission(data: {
   id: string
   name: string
   father_name: string
@@ -352,18 +369,25 @@ export function createSubmission(data: {
   status?: JoinSubmissionRow['status']
   source?: JoinSubmissionRow['source']
 }) {
-  db.prepare(
+  await execute(
     `INSERT INTO join_submissions (id, name, father_name, village, phone, aadhaar, email, status, source)
-     VALUES (@id, @name, @father_name, @village, @phone, @aadhaar, @email, @status, @source)`,
-  ).run({
-    ...data,
-    status: data.status ?? 'new',
-    source: data.source ?? 'website',
-  })
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [
+      data.id,
+      data.name,
+      data.father_name,
+      data.village,
+      data.phone,
+      data.aadhaar,
+      data.email,
+      data.status ?? 'new',
+      data.source ?? 'website',
+    ],
+  )
   return getSubmissionById(data.id)
 }
 
-export function updateSubmission(
+export async function updateSubmission(
   id: string,
   data: {
     name?: string
@@ -376,53 +400,56 @@ export function updateSubmission(
     notes?: string | null
   },
 ) {
-  const existing = getSubmissionById(id)
+  const existing = await getSubmissionById(id)
   if (!existing) return undefined
 
-  db.prepare(
+  await execute(
     `UPDATE join_submissions SET
-      name = @name,
-      father_name = @father_name,
-      village = @village,
-      phone = @phone,
-      aadhaar = @aadhaar,
-      email = @email,
-      status = @status,
-      notes = @notes,
-      updated_at = datetime('now')
-     WHERE id = @id`,
-  ).run({
-    id,
-    name: data.name ?? existing.name,
-    father_name: data.father_name ?? existing.father_name,
-    village: data.village ?? existing.village,
-    phone: data.phone ?? existing.phone,
-    aadhaar: data.aadhaar ?? existing.aadhaar,
-    email: data.email ?? existing.email,
-    status: data.status ?? existing.status,
-    notes: data.notes !== undefined ? data.notes : existing.notes,
-  })
+      name = $2,
+      father_name = $3,
+      village = $4,
+      phone = $5,
+      aadhaar = $6,
+      email = $7,
+      status = $8,
+      notes = $9,
+      updated_at = NOW()
+     WHERE id = $1`,
+    [
+      id,
+      data.name ?? existing.name,
+      data.father_name ?? existing.father_name,
+      data.village ?? existing.village,
+      data.phone ?? existing.phone,
+      data.aadhaar ?? existing.aadhaar,
+      data.email ?? existing.email,
+      data.status ?? existing.status,
+      data.notes !== undefined ? data.notes : existing.notes,
+    ],
+  )
   return getSubmissionById(id)
 }
 
-export function deleteSubmission(id: string) {
-  const result = db.prepare(`DELETE FROM join_submissions WHERE id = ?`).run(id)
-  return result.changes > 0
+export async function deleteSubmission(id: string) {
+  const count = await execute(`DELETE FROM join_submissions WHERE id = $1`, [id])
+  return count > 0
 }
 
-export function getDashboardStats() {
-  const submissions = db
-    .prepare(`SELECT COUNT(*) as count FROM join_submissions WHERE status = 'new'`)
-    .get() as { count: number }
-  const news = db
-    .prepare(`SELECT COUNT(*) as count FROM news_posts WHERE is_published = 1`)
-    .get() as { count: number }
-  const total = db.prepare(`SELECT COUNT(*) as count FROM join_submissions`).get() as { count: number }
-  const water = getWaterSettings()
+export async function getDashboardStats() {
+  const submissions = await queryOne<{ count: number }>(
+    `SELECT COUNT(*)::int AS count FROM join_submissions WHERE status = 'new'`,
+  )
+  const news = await queryOne<{ count: number }>(
+    `SELECT COUNT(*)::int AS count FROM news_posts WHERE is_published = 1`,
+  )
+  const total = await queryOne<{ count: number }>(
+    `SELECT COUNT(*)::int AS count FROM join_submissions`,
+  )
+  const water = await getWaterSettings()
   return {
-    newSubmissions: submissions.count,
-    publishedNews: news.count,
-    totalSubmissions: total.count,
+    newSubmissions: submissions?.count ?? 0,
+    publishedNews: news?.count ?? 0,
+    totalSubmissions: total?.count ?? 0,
     waterLevel: water.currentLevel,
     waterTarget: water.targetLevel,
     waterCapacity: water.capacity,

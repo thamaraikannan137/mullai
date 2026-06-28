@@ -1,9 +1,16 @@
+import 'dotenv/config'
 import bcrypt from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
-import { db, migrate } from './db.js'
+import { execute, migrate, queryOne } from './db.js'
 
 async function seed() {
-  migrate()
+  await migrate()
+
+  const existing = await queryOne<{ id: number }>(`SELECT id FROM site_content WHERE id = 1`)
+  if (existing && process.env.FORCE_SEED !== '1') {
+    console.log('Database already seeded, skipping.')
+    return
+  }
 
   const { translations } = await import(
     '../../mullai-periyar-sangam/src/i18n/translations.ts'
@@ -17,9 +24,11 @@ async function seed() {
     presidentPhoto: '',
   }
 
-  db.prepare(`DELETE FROM site_content`).run()
-  db.prepare(`DELETE FROM news_posts`).run()
-  db.prepare(`DELETE FROM join_submissions`).run()
+  if (existing) {
+    await execute(`DELETE FROM site_content`)
+    await execute(`DELETE FROM news_posts`)
+    await execute(`DELETE FROM join_submissions`)
+  }
 
   const waterSettings = JSON.stringify({
     currentLevel: 142,
@@ -45,47 +54,49 @@ async function seed() {
     social: { facebook: '', instagram: '', youtube: '' },
   })
 
-  db.prepare(
-    `INSERT INTO site_content (id, content_ta, content_en, hero_slides, images, water_settings, site_meta) VALUES (1, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    JSON.stringify(translations.ta),
-    JSON.stringify(translations.en),
-    JSON.stringify(heroSlides),
-    JSON.stringify(siteImages),
-    waterSettings,
-    siteMeta,
+  await execute(
+    `INSERT INTO site_content (id, content_ta, content_en, hero_slides, images, water_settings, site_meta)
+     VALUES (1, $1, $2, $3, $4, $5, $6)`,
+    [
+      JSON.stringify(translations.ta),
+      JSON.stringify(translations.en),
+      JSON.stringify(heroSlides),
+      JSON.stringify(siteImages),
+      waterSettings,
+      siteMeta,
+    ],
   )
 
-  const insertNews = db.prepare(
-    `INSERT INTO news_posts (id, tag_ta, tag_en, published_at, title_ta, title_en, body_ta, body_en, image_url, media_type, is_published, sort_order)
-     VALUES (@id, @tag_ta, @tag_en, @published_at, @title_ta, @title_en, @body_ta, @body_en, @image_url, @media_type, 1, @sort_order)`,
-  )
-
-  translations.ta.news.items.forEach((item, index) => {
+  for (const [index, item] of translations.ta.news.items.entries()) {
     const enItem = translations.en.news.items[index]
-    insertNews.run({
-      id: randomUUID(),
-      tag_ta: item.tag,
-      tag_en: enItem?.tag ?? item.tag,
-      published_at: item.date,
-      title_ta: item.title,
-      title_en: enItem?.title ?? item.title,
-      body_ta: item.body,
-      body_en: enItem?.body ?? item.body,
-      image_url: item.img,
-      media_type: 'image',
-      sort_order: index,
-    })
-  })
+    await execute(
+      `INSERT INTO news_posts (id, tag_ta, tag_en, published_at, title_ta, title_en, body_ta, body_en, image_url, media_type, is_published, sort_order)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1, $11)`,
+      [
+        randomUUID(),
+        item.tag,
+        enItem?.tag ?? item.tag,
+        item.date,
+        item.title,
+        enItem?.title ?? item.title,
+        item.body,
+        enItem?.body ?? item.body,
+        item.img,
+        'image',
+        index,
+      ],
+    )
+  }
 
   const email = process.env.ADMIN_INITIAL_EMAIL || 'admin@mullaiperiyar.org'
   const password = process.env.ADMIN_INITIAL_PASSWORD || 'admin123'
   const hash = bcrypt.hashSync(password, 10)
 
-  db.prepare(`DELETE FROM users WHERE email = ?`).run(email)
-  db.prepare(
-    `INSERT INTO users (id, email, password_hash, name, role) VALUES (?, ?, ?, ?, ?)`,
-  ).run(randomUUID(), email, hash, 'Admin', 'super_admin')
+  await execute(`DELETE FROM users WHERE email = $1`, [email])
+  await execute(
+    `INSERT INTO users (id, email, password_hash, name, role) VALUES ($1, $2, $3, $4, $5)`,
+    [randomUUID(), email, hash, 'Admin', 'super_admin'],
+  )
 
   console.log('Database seeded successfully.')
   console.log(`Admin login: ${email} / ${password}`)

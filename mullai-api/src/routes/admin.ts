@@ -39,8 +39,8 @@ export const adminRouter = Router()
 
 adminRouter.use(requireAuth)
 
-adminRouter.get('/dashboard', (_req, res) => {
-  res.json(getDashboardStats())
+adminRouter.get('/dashboard', async (_req, res) => {
+  res.json(await getDashboardStats())
 })
 
 const waterSchema = z.object({
@@ -52,17 +52,17 @@ const waterSchema = z.object({
   lastUpdatedEn: z.string(),
 })
 
-adminRouter.get('/water', (_req, res) => {
-  res.json(getWaterSettings())
+adminRouter.get('/water', async (_req, res) => {
+  res.json(await getWaterSettings())
 })
 
-adminRouter.put('/water', (req, res) => {
+adminRouter.put('/water', async (req, res) => {
   const parsed = waterSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid water settings', details: parsed.error.flatten() })
     return
   }
-  updateWaterSettings(parsed.data)
+  await updateWaterSettings(parsed.data)
   res.json({ ok: true })
 })
 
@@ -84,22 +84,22 @@ const siteMetaSchema = z.object({
   }),
 })
 
-adminRouter.get('/site-meta', (_req, res) => {
-  res.json(getSiteMeta())
+adminRouter.get('/site-meta', async (_req, res) => {
+  res.json(await getSiteMeta())
 })
 
-adminRouter.put('/site-meta', (req, res) => {
+adminRouter.put('/site-meta', async (req, res) => {
   const parsed = siteMetaSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid site meta', details: parsed.error.flatten() })
     return
   }
-  updateSiteMeta(parsed.data)
+  await updateSiteMeta(parsed.data)
   res.json({ ok: true })
 })
 
-adminRouter.get('/org', (_req, res) => {
-  res.json(getOrgSettings())
+adminRouter.get('/org', async (_req, res) => {
+  res.json(await getOrgSettings())
 })
 
 const orgSchema = z.object({
@@ -117,18 +117,18 @@ const orgSchema = z.object({
   }),
 })
 
-adminRouter.put('/org', (req, res) => {
+adminRouter.put('/org', async (req, res) => {
   const parsed = orgSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid org settings', details: parsed.error.flatten() })
     return
   }
-  updateOrgSettings(parsed.data.ta, parsed.data.en)
+  await updateOrgSettings(parsed.data.ta, parsed.data.en)
   res.json({ ok: true })
 })
 
-adminRouter.get('/images', (_req, res) => {
-  res.json(getSiteImages())
+adminRouter.get('/images', async (_req, res) => {
+  res.json(await getSiteImages())
 })
 
 const imagesSchema = z.object({
@@ -137,18 +137,18 @@ const imagesSchema = z.object({
   presidentPhoto: z.string(),
 })
 
-adminRouter.put('/images', (req, res) => {
+adminRouter.put('/images', async (req, res) => {
   const parsed = imagesSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid images', details: parsed.error.flatten() })
     return
   }
-  updateSiteImages(parsed.data)
+  await updateSiteImages(parsed.data)
   res.json({ ok: true })
 })
 
-adminRouter.get('/hero-slides', (_req, res) => {
-  res.json(getHeroSlides())
+adminRouter.get('/hero-slides', async (_req, res) => {
+  res.json(await getHeroSlides())
 })
 
 const heroSlideSchema = z.object({
@@ -158,28 +158,28 @@ const heroSlideSchema = z.object({
   alt: z.string(),
 })
 
-adminRouter.put('/hero-slides', (req, res) => {
+adminRouter.put('/hero-slides', async (req, res) => {
   const parsed = z.array(heroSlideSchema).safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid hero slides', details: parsed.error.flatten() })
     return
   }
-  updateHeroSlides(parsed.data)
+  await updateHeroSlides(parsed.data)
   res.json({ ok: true })
 })
 
 const contentSections = ['hero', 'about', 'quote', 'footer', 'join'] as const
 
-adminRouter.get('/content/:section', (req, res) => {
+adminRouter.get('/content/:section', async (req, res) => {
   const section = req.params.section
   if (!contentSections.includes(section as (typeof contentSections)[number])) {
     res.status(400).json({ error: 'Invalid content section' })
     return
   }
-  res.json(getContentSection(section))
+  res.json(await getContentSection(section))
 })
 
-adminRouter.put('/content/:section', (req, res) => {
+adminRouter.put('/content/:section', async (req, res) => {
   const section = req.params.section
   if (!contentSections.includes(section as (typeof contentSections)[number])) {
     res.status(400).json({ error: 'Invalid content section' })
@@ -190,12 +190,12 @@ adminRouter.put('/content/:section', (req, res) => {
     res.status(400).json({ error: 'ta and en required' })
     return
   }
-  updateContentSection(section, body.ta, body.en)
+  await updateContentSection(section, body.ta, body.en)
   res.json({ ok: true })
 })
 
-adminRouter.get('/contact', (_req, res) => {
-  res.json(getContactContent())
+adminRouter.get('/contact', async (_req, res) => {
+  res.json(await getContactContent())
 })
 
 const contactSchema = z.object({
@@ -227,50 +227,50 @@ const contactSchema = z.object({
   }),
 })
 
-adminRouter.put('/contact', (req, res) => {
+adminRouter.put('/contact', async (req, res) => {
   const parsed = contactSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid contact data', details: parsed.error.flatten() })
     return
   }
-  updateContact(parsed.data.ta, parsed.data.en)
+  await updateContact(parsed.data.ta, parsed.data.en)
   res.json({ ok: true })
 })
 
-adminRouter.get('/leaders', (_req, res) => {
-  res.json(getLeadersContent())
+adminRouter.get('/leaders', async (_req, res) => {
+  res.json(await getLeadersContent())
 })
 
-adminRouter.put('/leaders', (req, res) => {
+adminRouter.put('/leaders', async (req, res) => {
   const body = req.body as { ta?: Record<string, unknown>; en?: Record<string, unknown> }
   if (!body.ta || !body.en) {
     res.status(400).json({ error: 'ta and en leaders data required' })
     return
   }
-  updateLeaders(body.ta, body.en)
+  await updateLeaders(body.ta, body.en)
   res.json({ ok: true })
 })
 
-adminRouter.get('/demands', (_req, res) => {
-  res.json(getDemandsContent())
+adminRouter.get('/demands', async (_req, res) => {
+  res.json(await getDemandsContent())
 })
 
-adminRouter.put('/demands', (req, res) => {
+adminRouter.put('/demands', async (req, res) => {
   const body = req.body as { ta?: Record<string, unknown>; en?: Record<string, unknown> }
   if (!body.ta || !body.en) {
     res.status(400).json({ error: 'ta and en demands data required' })
     return
   }
-  updateDemands(body.ta, body.en)
+  await updateDemands(body.ta, body.en)
   res.json({ ok: true })
 })
 
-adminRouter.get('/news', (_req, res) => {
-  res.json(listAllNews())
+adminRouter.get('/news', async (_req, res) => {
+  res.json(await listAllNews())
 })
 
-adminRouter.get('/news/:id', (req, res) => {
-  const post = getNewsById(req.params.id)
+adminRouter.get('/news/:id', async (req, res) => {
+  const post = await getNewsById(req.params.id)
   if (!post) {
     res.status(404).json({ error: 'News post not found' })
     return
@@ -292,7 +292,7 @@ const newsSchema = z.object({
   sort_order: z.number().int().default(0),
 })
 
-adminRouter.post('/news', (req, res) => {
+adminRouter.post('/news', async (req, res) => {
   const parsed = newsSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid news data', details: parsed.error.flatten() })
@@ -300,11 +300,11 @@ adminRouter.post('/news', (req, res) => {
   }
 
   const id = randomUUID()
-  const post = createNews({ id, ...parsed.data })
+  const post = await createNews({ id, ...parsed.data })
   res.status(201).json(post)
 })
 
-adminRouter.put('/news/:id', (req, res) => {
+adminRouter.put('/news/:id', async (req, res) => {
   const parsed = newsSchema.partial().safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid news data', details: parsed.error.flatten() })
@@ -316,7 +316,7 @@ adminRouter.put('/news/:id', (req, res) => {
     data.is_published = data.is_published ? 1 : 0
   }
 
-  const post = updateNews(req.params.id, data)
+  const post = await updateNews(req.params.id, data)
   if (!post) {
     res.status(404).json({ error: 'News post not found' })
     return
@@ -324,8 +324,8 @@ adminRouter.put('/news/:id', (req, res) => {
   res.json(post)
 })
 
-adminRouter.delete('/news/:id', (req, res) => {
-  const ok = deleteNews(req.params.id)
+adminRouter.delete('/news/:id', async (req, res) => {
+  const ok = await deleteNews(req.params.id)
   if (!ok) {
     res.status(404).json({ error: 'News post not found' })
     return
@@ -333,19 +333,19 @@ adminRouter.delete('/news/:id', (req, res) => {
   res.json({ ok: true })
 })
 
-adminRouter.get('/submissions', (req, res) => {
+adminRouter.get('/submissions', async (req, res) => {
   const status = typeof req.query.status === 'string' ? req.query.status : undefined
-  res.json(listSubmissions(status))
+  res.json(await listSubmissions(status))
 })
 
-adminRouter.post('/submissions', (req, res) => {
+adminRouter.post('/submissions', async (req, res) => {
   const parsed = adminSubmissionSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid member data', details: parsed.error.flatten() })
     return
   }
 
-  const submission = createSubmission({
+  const submission = await createSubmission({
     id: randomUUID(),
     ...parsed.data,
     source: 'manual',
@@ -354,8 +354,8 @@ adminRouter.post('/submissions', (req, res) => {
   res.status(201).json(submission)
 })
 
-adminRouter.get('/submissions/:id', (req, res) => {
-  const row = getSubmissionById(req.params.id)
+adminRouter.get('/submissions/:id', async (req, res) => {
+  const row = await getSubmissionById(req.params.id)
   if (!row) {
     res.status(404).json({ error: 'Submission not found' })
     return
@@ -363,14 +363,14 @@ adminRouter.get('/submissions/:id', (req, res) => {
   res.json(row)
 })
 
-adminRouter.patch('/submissions/:id', (req, res) => {
+adminRouter.patch('/submissions/:id', async (req, res) => {
   const parsed = submissionUpdateSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid data', details: parsed.error.flatten() })
     return
   }
 
-  const row = updateSubmission(req.params.id, parsed.data)
+  const row = await updateSubmission(req.params.id, parsed.data)
   if (!row) {
     res.status(404).json({ error: 'Submission not found' })
     return
@@ -378,8 +378,8 @@ adminRouter.patch('/submissions/:id', (req, res) => {
   res.json(row)
 })
 
-adminRouter.delete('/submissions/:id', (req, res) => {
-  const ok = deleteSubmission(req.params.id)
+adminRouter.delete('/submissions/:id', async (req, res) => {
+  const ok = await deleteSubmission(req.params.id)
   if (!ok) {
     res.status(404).json({ error: 'Submission not found' })
     return

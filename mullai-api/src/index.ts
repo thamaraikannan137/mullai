@@ -4,6 +4,7 @@ import cors from 'cors'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { migrate } from './db.js'
 import { authRouter } from './routes/auth.js'
 import { publicRouter } from './routes/public.js'
 import { adminRouter } from './routes/admin.js'
@@ -48,9 +49,18 @@ if (fs.existsSync(staticDir)) {
   })
 }
 
-app.listen(port, () => {
-  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me') {
-    console.warn('WARNING: Set a strong JWT_SECRET in production')
-  }
-  console.log(`Mullai API running on port ${port}`)
+async function main() {
+  await migrate()
+
+  app.listen(port, () => {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me') {
+      console.warn('WARNING: Set a strong JWT_SECRET in production')
+    }
+    console.log(`Mullai API running on port ${port}`)
+  })
+}
+
+main().catch((err) => {
+  console.error('Failed to start server:', err)
+  process.exit(1)
 })

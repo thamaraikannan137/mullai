@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import type { JwtPayload, User } from '../types.js'
-import { db } from '../db.js'
+import { queryOne } from '../db.js'
 
 declare global {
   namespace Express {
@@ -22,7 +22,7 @@ export function verifyToken(token: string): JwtPayload {
   return jwt.verify(token, JWT_SECRET) as JwtPayload
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null
 
@@ -33,9 +33,10 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 
   try {
     const payload = verifyToken(token)
-    const user = db.prepare(`SELECT * FROM users WHERE id = ? AND is_active = 1`).get(payload.userId) as
-      | User
-      | undefined
+    const user = await queryOne<User>(
+      `SELECT * FROM users WHERE id = $1 AND is_active = 1`,
+      [payload.userId],
+    )
 
     if (!user) {
       res.status(401).json({ error: 'Invalid session' })
@@ -49,14 +50,15 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function getUserByEmail(email: string) {
-  return db.prepare(`SELECT * FROM users WHERE email = ? AND is_active = 1`).get(email) as
-    | (User & { password_hash: string })
-    | undefined
+export async function getUserByEmail(email: string) {
+  return queryOne<User & { password_hash: string }>(
+    `SELECT * FROM users WHERE email = $1 AND is_active = 1`,
+    [email],
+  )
 }
 
-export function getUserById(id: string) {
-  return db.prepare(`SELECT * FROM users WHERE id = ?`).get(id) as User | undefined
+export async function getUserById(id: string) {
+  return queryOne<User>(`SELECT * FROM users WHERE id = $1`, [id])
 }
 
 export function sanitizeUser(user: User) {

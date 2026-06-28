@@ -14,13 +14,12 @@ echo "==> Installing API dependencies"
 cd "$API"
 npm install
 
-echo "==> Seeding SQLite database"
+echo "==> Migrating and seeding Neon database"
 cd "$API"
 npx tsx src/seed.ts
 
 echo "==> Building API"
 npm run build
-npm prune --omit=dev
 
 echo "==> Building frontend (same-origin API)"
 cd "$FRONTEND"
@@ -35,6 +34,6 @@ cp "$ROOT/deploy-manifest.json" "$HOSTING/deploy-manifest.json"
 cp -R "$API/dist/." "$HOSTING/compute/default/"
 cp -R "$API/node_modules" "$HOSTING/compute/default/node_modules"
 cp "$API/package.json" "$HOSTING/compute/default/package.json"
-cp -R "$API/data" "$HOSTING/compute/default/data"
+(cd "$HOSTING/compute/default" && npm prune --omit=dev)
 
 echo "==> Amplify bundle ready at .amplify-hosting"

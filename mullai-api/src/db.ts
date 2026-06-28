@@ -1,42 +1,33 @@
-import Database from 'better-sqlite3'
-import fs from 'node:fs'
-import os from 'node:os'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import pg from 'pg'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const bundledDataDir = fs.existsSync(path.join(__dirname, 'data'))
-  ? path.join(__dirname, 'data')
-  : path.join(__dirname, '..', 'data')
+const { Pool } = pg
 
-function resolveDbPath() {
-  if (process.env.DB_PATH) return process.env.DB_PATH
-
-  const isCompute = Boolean(process.env.AWS_EXECUTION_ENV)
-  const dataDir = isCompute ? path.join(os.tmpdir(), 'mullai-data') : bundledDataDir
-
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true })
-  }
-
-  const dbPath = path.join(dataDir, 'mullai.db')
-  const bundledDb = path.join(bundledDataDir, 'mullai.db')
-
-  if (!fs.existsSync(dbPath) && fs.existsSync(bundledDb)) {
-    fs.copyFileSync(bundledDb, dbPath)
-  }
-
-  return dbPath
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required (Neon PostgreSQL connection string)')
 }
 
-const dbPath = resolveDbPath()
-export const db = new Database(dbPath)
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+})
 
-db.pragma('journal_mode = WAL')
-db.pragma('foreign_keys = ON')
+export async function query<T>(text: string, params: unknown[] = []): Promise<T[]> {
+  const result = await pool.query(text, params)
+  return result.rows as T[]
+}
 
-export function migrate() {
-  db.exec(`
+export async function queryOne<T>(text: string, params: unknown[] = []): Promise<T | undefined> {
+  const rows = await query<T>(text, params)
+  return rows[0]
+}
+
+export async function execute(text: string, params: unknown[] = []): Promise<number> {
+  const result = await pool.query(text, params)
+  return result.rowCount ?? 0
+}
+
+export async function migrate() {
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -44,7 +35,7 @@ export function migrate() {
       name TEXT,
       role TEXT NOT NULL DEFAULT 'editor',
       is_active INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS site_content (
@@ -53,7 +44,9 @@ export function migrate() {
       content_en TEXT NOT NULL,
       hero_slides TEXT NOT NULL,
       images TEXT NOT NULL,
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      water_settings TEXT,
+      site_meta TEXT,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS news_posts (
@@ -69,8 +62,8 @@ export function migrate() {
       media_type TEXT NOT NULL DEFAULT 'image',
       is_published INTEGER NOT NULL DEFAULT 1,
       sort_order INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS join_submissions (
@@ -84,33 +77,12 @@ export function migrate() {
       status TEXT NOT NULL DEFAULT 'new',
       source TEXT NOT NULL DEFAULT 'website',
       notes TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `)
 
-  const columns = db.prepare(`PRAGMA table_info(join_submissions)`).all() as { name: string }[]
-  if (!columns.some((c) => c.name === 'source')) {
-    db.exec(`ALTER TABLE join_submissions ADD COLUMN source TEXT NOT NULL DEFAULT 'website'`)
-  }
-  if (!columns.some((c) => c.name === 'father_name')) {
-    db.exec(`ALTER TABLE join_submissions ADD COLUMN father_name TEXT NOT NULL DEFAULT ''`)
-  }
-  if (!columns.some((c) => c.name === 'aadhaar')) {
-    db.exec(`ALTER TABLE join_submissions ADD COLUMN aadhaar TEXT NOT NULL DEFAULT ''`)
-  }
-  if (!columns.some((c) => c.name === 'email')) {
-    db.exec(`ALTER TABLE join_submissions ADD COLUMN email TEXT NOT NULL DEFAULT ''`)
-  }
-  db.exec(`UPDATE join_submissions SET source = 'manual' WHERE source = 'admin'`)
-
-  const siteColumns = db.prepare(`PRAGMA table_info(site_content)`).all() as { name: string }[]
-  if (!siteColumns.some((c) => c.name === 'water_settings')) {
-    db.exec(`ALTER TABLE site_content ADD COLUMN water_settings TEXT`)
-  }
-  if (!siteColumns.some((c) => c.name === 'site_meta')) {
-    db.exec(`ALTER TABLE site_content ADD COLUMN site_meta TEXT`)
-  }
+  await pool.query(`UPDATE join_submissions SET source = 'manual' WHERE source = 'admin'`)
 
   const defaultWater = JSON.stringify({
     currentLevel: 142,
@@ -134,14 +106,12 @@ export function migrate() {
     about: { districtCount: 5, badgeYear: 1895 },
     social: { facebook: '', instagram: '', youtube: '' },
   })
-  db.prepare(
-    `UPDATE site_content SET water_settings = COALESCE(water_settings, ?), site_meta = COALESCE(site_meta, ?) WHERE id = 1`,
-  ).run(defaultWater, defaultMeta)
 
-  const newsColumns = db.prepare(`PRAGMA table_info(news_posts)`).all() as { name: string }[]
-  if (!newsColumns.some((c) => c.name === 'media_type')) {
-    db.exec(`ALTER TABLE news_posts ADD COLUMN media_type TEXT NOT NULL DEFAULT 'image'`)
-  }
+  await pool.query(
+    `UPDATE site_content
+     SET water_settings = COALESCE(water_settings, $1),
+         site_meta = COALESCE(site_meta, $2)
+     WHERE id = 1`,
+    [defaultWater, defaultMeta],
+  )
 }
-
-migrate()

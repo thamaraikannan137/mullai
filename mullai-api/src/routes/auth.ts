@@ -19,14 +19,14 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-authRouter.post('/login', loginLimiter, (req, res) => {
+authRouter.post('/login', loginLimiter, async (req, res) => {
   const parsed = loginSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid email or password' })
     return
   }
 
-  const user = getUserByEmail(parsed.data.email)
+  const user = await getUserByEmail(parsed.data.email)
   if (!user) {
     res.status(401).json({ error: 'Invalid email or password' })
     return
